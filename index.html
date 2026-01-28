@@ -779,12 +779,13 @@
         }
         
         .messages-container {
-    padding: 15px 12px;
+    padding: 15px 12px 90px 12px; /* ADDED 90px bottom padding */
     gap: 15px;
-    flex: 1; /* CHANGED: Use flex instead of fixed height */
+    flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    min-height: 0; /* Important for flex to work */
+    min-height: 0;
+    margin-bottom: 0;
 }
 
 
@@ -806,12 +807,15 @@
         
         .input-container {
     padding: 12px 15px;
-    position: sticky; /* CHANGED from fixed to sticky */
+    position: fixed; /* CHANGED BACK to fixed */
     bottom: 0;
+    left: 0; /* ADD THIS */
+    right: 0; /* ADD THIS */
     background: rgba(15, 15, 26, 0.98);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 107, 53, 0.2);
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
+    z-index: 1000; /* ADD THIS to ensure it's on top */
 }
         
         .input-wrapper {
@@ -924,10 +928,11 @@
         }
         
      .messages-container {
-    padding: 12px 10px;
+    padding: 12px 10px 80px 10px; /* ADDED 80px bottom padding */
     gap: 12px;
-    flex: 1; /* CHANGED */
-    min-height: 0; /* ADD THIS */
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 0;
 }
         
         .message {
@@ -950,8 +955,13 @@
         }
         
         .input-container {
-            padding: 10px 12px;
-        }
+    padding: 10px 12px;
+    position: fixed; /* ADD THIS */
+    bottom: 0; /* ADD THIS */
+    left: 0; /* ADD THIS */
+    right: 0; /* ADD THIS */
+    z-index: 1000; /* ADD THIS */
+}
         
         .chat-input {
             padding: 12px 14px;

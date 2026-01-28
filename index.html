@@ -10,153 +10,267 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --primary-light: #FF8E5C;
+            --gradient: linear-gradient(135deg, #FF6B35 0%, #FF8E5C 100%);
+            --gradient-dark: linear-gradient(135deg, #E55A2B 0%, #FF6B35 100%);
+            --bg-dark: #0F0F1A;
+            --bg-card: #1A1A2E;
+            --bg-input: #25253D;
+            --text: #FFFFFF;
+            --text-secondary: #A0A0C0;
+            --shadow: 0 10px 30px rgba(255, 107, 53, 0.15);
+            --shadow-lg: 0 20px 50px rgba(255, 107, 53, 0.25);
+            --border-radius: 20px;
+            --border-radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         body {
-            background-color: #0a0a0a;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
         
-        .header {
-            background-color: #000;
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 142, 92, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(26, 26, 46, 0.8) 0%, transparent 50%);
+            animation: pulse 15s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.5; }
+        }
+        
+        /* Main Layout Container */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+        
+        /* Features Sidebar (Desktop only) */
+        .features-sidebar {
+            width: 320px;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 107, 53, 0.1);
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid #ff2e2e;
-            box-shadow: 0 4px 12px rgba(255, 46, 46, 0.2);
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        
+        .features-sidebar.active {
+            display: flex;
+        }
+        
+        /* Main Chat Area */
+        .main-chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Header - Fixed at top */
+        .chat-header {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            flex-shrink: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            gap: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 5px 15px;
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient);
+            opacity: 0.1;
+            z-index: -1;
+            border-radius: 50px;
         }
         
         .logo-icon {
-            color: #ff2e2e;
-            font-size: 2.5rem;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 5px rgba(255, 107, 53, 0.3));
+            animation: float 3s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
         
         h1 {
-            font-size: 2.8rem;
-            letter-spacing: 2px;
-            color: white;
-        }
-        
-        .tagline {
-            color: #aaa;
-            font-style: italic;
-            font-size: 1.1rem;
-            margin-top: 5px;
-        }
-        
-        .container {
-            display: flex;
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 20px;
-            min-height: 0; /* Important for proper flex child scrolling */
-        }
-        
-        .chat-container {
-            flex: 1;
-            background-color: #111;
-            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 1px solid #333;
-            min-height: 0; /* Important for proper flex child scrolling */
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
         }
         
-        .chat-header {
-            background-color: #000;
-            padding: 15px 20px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0; /* Prevent header from shrinking */
-        }
-        
-        .bot-info {
+        .bot-info-mobile {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-left: 10px;
         }
         
-        .bot-avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #ff2e2e;
+        .bot-avatar-small {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .bot-name {
-            font-weight: bold;
-            font-size: 1.3rem;
-        }
-        
-        .bot-status {
-            color: #aaa;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+            flex-shrink: 0;
         }
         
         .chat-controls {
             display: flex;
             gap: 10px;
+            flex-shrink: 0;
         }
         
         .chat-btn {
-            background-color: #222;
-            border: none;
-            color: white;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            color: var(--text);
             padding: 8px 15px;
-            border-radius: 20px;
+            border-radius: var(--border-radius-sm);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
         }
         
         .chat-btn:hover {
-            background-color: #ff2e2e;
+            background: var(--gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
         }
         
-        .chat-messages {
+        /* Messages Container - Scrollable */
+        .messages-container {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            min-height: 0; /* Critical for proper scrolling in flex container */
-            max-height: 60vh; /* Limit height for better scrolling */
+            gap: 20px;
+            scroll-behavior: smooth;
         }
         
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.7;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        /* Message styles */
         .message {
             display: flex;
-            max-width: 80%;
-            animation: fadeIn 0.3s ease-out;
+            max-width: 85%;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
         
         .user-message {
@@ -169,134 +283,249 @@
         }
         
         .message-avatar {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin: 0 10px;
+            margin: 0 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         .user-message .message-avatar {
-            background-color: #333;
+            background: var(--gradient);
             color: white;
         }
         
         .bot-message .message-avatar {
-            background-color: #ff2e2e;
+            background: var(--gradient-dark);
             color: white;
         }
         
         .message-content {
-            padding: 12px 18px;
-            border-radius: 18px;
+            padding: 15px 20px;
+            border-radius: 25px;
             position: relative;
             word-wrap: break-word;
+            max-width: 100%;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .user-message .message-content {
-            background-color: #ff2e2e;
+            background: var(--gradient);
             color: white;
-            border-top-right-radius: 5px;
+            border-bottom-right-radius: 8px;
         }
         
         .bot-message .message-content {
-            background-color: #222;
-            color: white;
-            border-top-left-radius: 5px;
+            background: rgba(37, 37, 61, 0.8);
+            color: var(--text);
+            border-bottom-left-radius: 8px;
+            border: 1px solid rgba(255, 107, 53, 0.1);
         }
         
         .message-time {
-            font-size: 0.7rem;
-            color: #aaa;
-            margin-top: 5px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
             text-align: right;
         }
         
-        .chat-input-container {
+        /* Input Container - Fixed at bottom */
+        .input-container {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(20px);
             padding: 20px;
-            border-top: 1px solid #333;
-            background-color: #000;
+            border-top: 1px solid rgba(255, 107, 53, 0.1);
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+        }
+        
+        .input-wrapper {
             display: flex;
-            gap: 10px;
-            flex-shrink: 0; /* Prevent input area from shrinking */
+            gap: 15px;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .chat-input {
             flex: 1;
-            padding: 15px;
+            padding: 16px 20px;
             border: none;
-            border-radius: 30px;
-            background-color: #222;
-            color: white;
+            border-radius: var(--border-radius-sm);
+            background: var(--bg-input);
+            color: var(--text);
             font-size: 1rem;
             outline: none;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            min-width: 0;
+        }
+        
+        .chat-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
         }
         
         .send-button {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
-            background-color: #ff2e2e;
+            background: var(--gradient);
             border: none;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
         }
         
         .send-button:hover {
-            background-color: #ff5555;
-            transform: scale(1.05);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
         }
         
-        .features {
-            width: 300px;
-            margin-left: 20px;
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .action-chip {
+            background: rgba(255, 107, 53, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            flex-shrink: 0;
+        }
+        
+        .action-chip:hover {
+            background: var(--gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        /* Features Panel (Mobile) */
+        .features-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+        }
+        
+        .features-panel.active {
+            right: 0;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .close-panel:hover {
+            background: rgba(255, 107, 53, 0.1);
         }
         
         .feature-card {
-            background-color: #111;
-            border-radius: 15px;
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
             padding: 20px;
-            border: 1px solid #333;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+            transition: var(--transition);
+            margin-bottom: 20px;
         }
         
         .feature-card h3 {
-            color: #ff2e2e;
+            color: var(--primary);
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .feature-card h3 i {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .sassy-replies {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
         
         .reply-chip {
-            background-color: #222;
-            padding: 8px 15px;
+            background: rgba(255, 107, 53, 0.1);
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: all 0.3s;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            flex-shrink: 0;
         }
         
         .reply-chip:hover {
-            background-color: #ff2e2e;
+            background: var(--gradient);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
         }
         
         .viral-features {
@@ -304,147 +533,64 @@
         }
         
         .viral-features li {
-            margin-bottom: 10px;
-            padding-left: 25px;
+            margin-bottom: 12px;
+            padding-left: 28px;
             position: relative;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
         
         .viral-features li:before {
             content: "☕";
             position: absolute;
             left: 0;
-            color: #ff2e2e;
-        }
-        
-        .share-section {
-            text-align: center;
-            margin-top: 20px;
+            color: var(--primary);
+            font-size: 1.2rem;
         }
         
         .share-button {
-            background-color: #222;
+            background: var(--gradient);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
+            padding: 14px 28px;
+            border-radius: var(--border-radius-sm);
             cursor: pointer;
             font-size: 1rem;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
+            gap: 12px;
+            transition: var(--transition);
+            width: 100%;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+            margin-top: 10px;
         }
         
         .share-button:hover {
-            background-color: #ff2e2e;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #aaa;
-            background-color: #000;
-            border-top: 1px solid #333;
-            margin-top: 20px;
-            flex-shrink: 0; /* Prevent footer from shrinking */
-        }
-        
-        .mobile-warning {
-            display: none;
-            background-color: #222;
-            padding: 10px;
-            text-align: center;
-            color: #ff2e2e;
-            font-style: italic;
-            flex-shrink: 0; /* Prevent warning from shrinking */
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                padding: 10px;
-            }
-            
-            .features {
-                width: 100%;
-                margin-left: 0;
-                margin-top: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .chat-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-            
-            .chat-controls {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
-            .mobile-warning {
-                display: block;
-            }
-            
-            .chat-messages {
-                max-height: 50vh; /* Adjusted for mobile */
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .chat-input-container {
-                flex-direction: column;
-            }
-            
-            .chat-input {
-                width: 100%;
-            }
-            
-            .send-button {
-                width: 100%;
-                border-radius: 30px;
-                height: 45px;
-            }
-            
-            .logo-icon {
-                font-size: 2rem;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .chat-messages {
-                max-height: 45vh; /* Further adjusted for smaller mobile */
-            }
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
         }
         
         /* Typing indicator */
         .typing-indicator {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            background-color: #222;
-            border-radius: 18px;
+            padding: 15px 20px;
+            background: rgba(37, 37, 61, 0.8);
+            border-radius: 25px;
             width: fit-content;
-            border-top-left-radius: 5px;
+            border-bottom-left-radius: 8px;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .typing-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #aaa;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
             border-radius: 50%;
-            margin: 0 3px;
+            margin: 0 4px;
             animation: typing 1.4s infinite ease-in-out;
         }
         
@@ -465,111 +611,247 @@
             height: 100%;
             pointer-events: none;
             z-index: -1;
+            opacity: 0.3;
         }
         
         .coffee-cup {
             position: absolute;
             font-size: 2rem;
-            color: #ff2e2e;
-            opacity: 0.1;
+            color: var(--primary);
+            opacity: 0.5;
             animation: float 20s infinite linear;
+            filter: drop-shadow(0 5px 15px rgba(255, 107, 53, 0.3));
         }
         
         @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); }
-            100% { transform: translateY(-100px) rotate(360deg); }
+            0% { transform: translateY(100vh) rotate(0deg) scale(1); }
+            100% { transform: translateY(-100px) rotate(360deg) scale(1.2); }
         }
         
         /* Scrollbar styling */
-        .chat-messages::-webkit-scrollbar {
-            width: 8px;
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
         }
         
-        .chat-messages::-webkit-scrollbar-track {
-            background: #111;
-            border-radius: 4px;
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(15, 15, 26, 0.5);
+            border-radius: 3px;
         }
         
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #ff2e2e;
-            border-radius: 4px;
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--gradient);
+            border-radius: 3px;
         }
         
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #ff5555;
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-dark);
+        }
+        
+        /* Achievement Popup */
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gradient);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideInRight 0.5s ease-out;
+            max-width: 300px;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Mobile Features Toggle */
+        .mobile-features-toggle {
+            display: none;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-features-toggle:hover {
+            background: var(--gradient);
+        }
+        
+        /* Responsive Design */
+        @media (min-width: 1024px) {
+            .features-sidebar {
+                display: flex;
+            }
+            
+            .mobile-features-toggle {
+                display: none;
+            }
+            
+            .bot-info-mobile {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            .mobile-features-toggle {
+                display: flex;
+            }
+            
+            .chat-btn span {
+                display: none;
+            }
+            
+            .chat-btn {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                justify-content: center;
+            }
+            
+            .logo {
+                padding: 5px 10px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .messages-container {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .message-content {
+                padding: 12px 16px;
+                font-size: 0.95rem;
+            }
+            
+            .message-avatar {
+                width: 35px;
+                height: 35px;
+                margin: 0 8px;
+            }
+            
+            .input-container {
+                padding: 15px;
+            }
+            
+            .input-wrapper {
+                gap: 10px;
+            }
+            
+            .chat-input {
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+            
+            .send-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .chat-header {
+                padding: 12px 15px;
+            }
+            
+            .logo {
+                gap: 8px;
+            }
+            
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.3rem;
+            }
+            
+            .bot-avatar-small {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+            
+            .chat-btn {
+                width: 36px;
+                height: 36px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .messages-container {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+            
+            .message-content {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+            }
+            
+            .message-avatar {
+                width: 30px;
+                height: 30px;
+                margin: 0 6px;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 1.1rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.2rem;
+            }
+            
+            .quick-actions {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
     <div class="coffee-animation" id="coffeeAnimation"></div>
     
-    <div class="mobile-warning">
-        <i class="fas fa-mobile-alt"></i> Best experienced on mobile! Try sending a message to CoffeeBot.
-    </div>
-    
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">
-                <i class="fas fa-coffee"></i>
-            </div>
-            <h1>CoffeeChat ☕</h1>
-        </div>
-        <p class="tagline">Where the coffee is hot and the replies are savage!</p>
-    </header>
-    
-    <div class="container">
-        <div class="chat-container">
-            <div class="chat-header">
-                <div class="bot-info">
-                    <div class="bot-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div>
-                        <div class="bot-name">CoffeeBot</div>
-                        <div class="bot-status">Online • Feeling sassy today</div>
-                    </div>
-                </div>
-                <div class="chat-controls">
-                    <button class="chat-btn" id="clearChat">
-                        <i class="fas fa-trash"></i> Clear
-                    </button>
-                    <button class="chat-btn" id="themeToggle">
-                        <i class="fas fa-moon"></i> Theme
-                    </button>
-                    <button class="chat-btn" id="soundToggle">
-                        <i class="fas fa-volume-up"></i> Sound
-                    </button>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chatMessages">
-                <!-- Messages will appear here -->
-                <div class="message bot-message">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div>
-                        <div class="message-content">
-                            Chala ja yahaan se... Just kidding! Coffee piyega? ☕
-                        </div>
-                        <div class="message-time">Just now</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" id="messageInput" placeholder="Type your message here...">
-                <button class="send-button" id="sendButton">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="features">
+    <div class="app-container">
+        <!-- Features Sidebar (Desktop) -->
+        <div class="features-sidebar" id="featuresSidebar">
             <div class="feature-card">
                 <h3><i class="fas fa-fire"></i> Sassy Replies</h3>
                 <p>CoffeeBot doesn't reply normally. Try these prompts or make up your own!</p>
-                <div class="sassy-replies" id="sassyReplies">
+                <div class="sassy-replies" id="sassyRepliesDesktop">
                     <!-- Reply chips will be added here by JavaScript -->
                 </div>
             </div>
@@ -588,19 +870,142 @@
             <div class="feature-card">
                 <h3><i class="fas fa-share-alt"></i> Share CoffeeChat</h3>
                 <p>Spread the laughter! Share CoffeeChat with your friends.</p>
-                <div class="share-section">
-                    <button class="share-button" id="shareButton">
-                        <i class="fas fa-share"></i> Share with Friends
+                <button class="share-button" id="shareButtonDesktop">
+                    <i class="fas fa-share"></i> Share with Friends
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="main-chat-area">
+            <!-- Header - Fixed -->
+            <header class="chat-header">
+                <div class="logo-container">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-coffee"></i>
+                        </div>
+                        <h1>CoffeeChat ☕</h1>
+                    </div>
+                </div>
+                
+                <div class="bot-info-mobile">
+                    <div class="bot-avatar-small">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="bot-details">
+                        <div class="bot-name" style="font-size: 0.9rem; font-weight: bold;">CoffeeBot</div>
+                        <div class="bot-status" style="font-size: 0.7rem; color: var(--primary);">Online</div>
+                    </div>
+                </div>
+                
+                <div class="chat-controls">
+                    <button class="chat-btn" id="clearChat">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear</span>
                     </button>
+                    <button class="chat-btn" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Theme</span>
+                    </button>
+                    <button class="chat-btn" id="soundToggle">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Sound</span>
+                    </button>
+                    <button class="mobile-features-toggle" id="mobileFeaturesToggle">
+                        <i class="fas fa-bolt"></i>
+                        <span>Features</span>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Messages Container - Scrollable -->
+            <div class="messages-container" id="chatMessages">
+                <!-- Empty state -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-comment-slash"></i>
+                    <h3>Start a conversation with CoffeeBot</h3>
+                    <p style="margin-top: 10px; color: var(--text-secondary);">Try asking something sassy!</p>
+                </div>
+                
+                <!-- Initial bot message -->
+                <div class="message bot-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="message-content">
+                            Chala ja yahaan se... Just kidding! Coffee piyega? ☕
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Container - Fixed -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <input type="text" class="chat-input" id="messageInput" 
+                           placeholder="Type your message here..." 
+                           autocomplete="off">
+                    <button class="send-button" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions" id="quickActions">
+                    <!-- Quick action chips will be added here by JavaScript -->
                 </div>
             </div>
         </div>
     </div>
     
-    <footer class="footer">
-        <p>CoffeeChat ☕ | The sassiest chatbot on the internet | Made with <i class="fas fa-heart" style="color:#ff2e2e"></i> and lots of coffee</p>
-        <p style="margin-top:10px; font-size:0.9rem;">Warning: CoffeeBot may hurt your feelings. Drink coffee at your own risk!</p>
-    </footer>
+    <!-- Features Panel (Mobile) -->
+    <div class="features-panel" id="featuresPanel">
+        <div class="panel-header">
+            <h2 class="panel-title">CoffeeChat Features</h2>
+            <button class="close-panel" id="closePanel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="feature-card">
+            <h3><i class="fas fa-fire"></i> Sassy Replies</h3>
+            <p>CoffeeBot doesn't reply normally. Try these prompts or make up your own!</p>
+            <div class="sassy-replies" id="sassyRepliesMobile">
+                <!-- Reply chips will be added here by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="feature-card">
+            <h3><i class="fas fa-viruses"></i> Viral Features</h3>
+            <ul class="viral-features">
+                <li><strong>Unexpected Replies:</strong> Bot never answers properly</li>
+                <li><strong>Share Conversations:</strong> Export your hilarious chats</li>
+                <li><strong>Mobile Optimized:</strong> Works perfectly on phones</li>
+                <li><strong>Sound Effects:</strong> Toggle on/off for fun sounds</li>
+                <li><strong>Dark/Light Mode:</strong> Switch themes with one click</li>
+            </ul>
+        </div>
+        
+        <div class="feature-card">
+            <h3><i class="fas fa-share-alt"></i> Share CoffeeChat</h3>
+            <p>Spread the laughter! Share CoffeeChat with your friends.</p>
+            <button class="share-button" id="shareButtonMobile">
+                <i class="fas fa-share"></i> Share with Friends
+            </button>
+        </div>
+    </div>
+    
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievementPopup">
+        <i class="fas fa-trophy"></i>
+        <div>
+            <strong>Achievement Unlocked!</strong>
+            <div id="achievementText">First Message Sent</div>
+        </div>
+    </div>
 
     <script>
         // Bot responses array
@@ -643,79 +1048,236 @@
             "Where are you from?"
         ];
         
-        // DOM elements
-        const chatMessages = document.getElementById('chatMessages');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const clearChatButton = document.getElementById('clearChat');
-        const themeToggle = document.getElementById('themeToggle');
-        const soundToggle = document.getElementById('soundToggle');
-        const shareButton = document.getElementById('shareButton');
-        const sassyRepliesContainer = document.getElementById('sassyReplies');
-        const coffeeAnimation = document.getElementById('coffeeAnimation');
+        // Quick actions
+        const quickActions = [
+            "Hello",
+            "How are you?",
+            "Coffee piyega?",
+            "Tell me a joke",
+            "I love you"
+        ];
         
         // State variables
         let soundEnabled = true;
         let isLightTheme = false;
         let messageCount = 0;
+        let streakCount = 1;
+        let level = 1;
+        let xp = 0;
+        let xpNeeded = 10;
+        let achievements = [];
+        
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, initializing app...");
+            initApp();
+        });
         
         // Initialize the app
         function initApp() {
-            // Create coffee animation elements
+            console.log("Initializing CoffeeChat...");
+            
+            // Hide empty state since we have initial message
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+            
+            // Create coffee animation
             createCoffeeAnimation();
             
-            // Add sassy reply chips
-            renderSassyChips();
+            // Add quick action chips
+            renderQuickActions();
             
-            // Add event listeners
-            sendButton.addEventListener('click', sendMessage);
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendMessage();
-            });
+            // Add sassy reply chips to both desktop and mobile
+            renderSassyChips('sassyRepliesDesktop');
+            renderSassyChips('sassyRepliesMobile');
             
-            clearChatButton.addEventListener('click', clearChat);
-            themeToggle.addEventListener('click', toggleTheme);
-            soundToggle.addEventListener('click', toggleSound);
-            shareButton.addEventListener('click', shareChat);
+            // Setup event listeners
+            setupEventListeners();
             
-            // Add initial bot message
+            // Load from localStorage
+            loadFromStorage();
+            
+            // Show welcome achievement
             setTimeout(() => {
-                addMessage("CoffeeBot", "Tera pehla message hai? Chal kuch bol...", false);
+                showAchievement("Welcome to CoffeeChat!", "Your sassy journey begins!");
             }, 1000);
+            
+            console.log("App initialized successfully!");
+        }
+        
+        // Setup all event listeners
+        function setupEventListeners() {
+            console.log("Setting up event listeners...");
+            
+            // Send message
+            const sendButton = document.getElementById('sendButton');
+            const messageInput = document.getElementById('messageInput');
+            
+            if (sendButton && messageInput) {
+                sendButton.addEventListener('click', function() {
+                    console.log("Send button clicked");
+                    sendMessage();
+                });
+                
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        console.log("Enter key pressed");
+                        sendMessage();
+                    }
+                });
+            } else {
+                console.error("Send button or input not found");
+            }
+            
+            // Clear chat
+            const clearChatButton = document.getElementById('clearChat');
+            if (clearChatButton) {
+                clearChatButton.addEventListener('click', function() {
+                    console.log("Clear chat button clicked");
+                    clearChat();
+                });
+            }
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    console.log("Theme toggle clicked");
+                    toggleTheme();
+                });
+            }
+            
+            // Sound toggle
+            const soundToggle = document.getElementById('soundToggle');
+            if (soundToggle) {
+                soundToggle.addEventListener('click', function() {
+                    console.log("Sound toggle clicked");
+                    toggleSound();
+                });
+            }
+            
+            // Mobile features panel
+            const mobileFeaturesToggle = document.getElementById('mobileFeaturesToggle');
+            const closePanel = document.getElementById('closePanel');
+            const featuresPanel = document.getElementById('featuresPanel');
+            
+            if (mobileFeaturesToggle && featuresPanel) {
+                mobileFeaturesToggle.addEventListener('click', function() {
+                    console.log("Features toggle clicked");
+                    featuresPanel.classList.add('active');
+                });
+            }
+            
+            if (closePanel && featuresPanel) {
+                closePanel.addEventListener('click', function() {
+                    console.log("Close panel clicked");
+                    featuresPanel.classList.remove('active');
+                });
+            }
+            
+            // Share buttons
+            const shareDesktop = document.getElementById('shareButtonDesktop');
+            const shareMobile = document.getElementById('shareButtonMobile');
+            
+            if (shareDesktop) {
+                shareDesktop.addEventListener('click', function() {
+                    console.log("Share desktop clicked");
+                    shareChat();
+                });
+            }
+            
+            if (shareMobile) {
+                shareMobile.addEventListener('click', function() {
+                    console.log("Share mobile clicked");
+                    shareChat();
+                });
+            }
+            
+            console.log("Event listeners setup complete");
         }
         
         // Create floating coffee cups animation
         function createCoffeeAnimation() {
+            const coffeeAnimation = document.getElementById('coffeeAnimation');
+            if (!coffeeAnimation) return;
+            
             for (let i = 0; i < 15; i++) {
                 const coffeeCup = document.createElement('div');
                 coffeeCup.className = 'coffee-cup';
                 coffeeCup.innerHTML = '☕';
                 coffeeCup.style.left = Math.random() * 100 + 'vw';
-                coffeeCup.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-                coffeeCup.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                coffeeCup.style.fontSize = (Math.random() * 1.5 + 1.5) + 'rem';
+                coffeeCup.style.animationDuration = (Math.random() * 20 + 15) + 's';
                 coffeeCup.style.animationDelay = Math.random() * 5 + 's';
                 coffeeAnimation.appendChild(coffeeCup);
             }
         }
         
+        // Render quick action chips
+        function renderQuickActions() {
+            const quickActionsContainer = document.getElementById('quickActions');
+            if (!quickActionsContainer) return;
+            
+            quickActions.forEach(actionText => {
+                const chip = document.createElement('div');
+                chip.className = 'action-chip';
+                chip.textContent = actionText;
+                chip.addEventListener('click', function() {
+                    const messageInput = document.getElementById('messageInput');
+                    if (messageInput) {
+                        messageInput.value = actionText;
+                        messageInput.focus();
+                    }
+                });
+                quickActionsContainer.appendChild(chip);
+            });
+        }
+        
         // Render sassy reply chips
-        function renderSassyChips() {
+        function renderSassyChips(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
             sassyChips.forEach(chipText => {
                 const chip = document.createElement('div');
                 chip.className = 'reply-chip';
                 chip.textContent = chipText;
-                chip.addEventListener('click', () => {
-                    messageInput.value = chipText;
-                    messageInput.focus();
+                chip.addEventListener('click', function() {
+                    const messageInput = document.getElementById('messageInput');
+                    if (messageInput) {
+                        messageInput.value = chipText;
+                        messageInput.focus();
+                    }
+                    
+                    // Close panel if on mobile
+                    if (containerId.includes('Mobile')) {
+                        const featuresPanel = document.getElementById('featuresPanel');
+                        if (featuresPanel) {
+                            featuresPanel.classList.remove('active');
+                        }
+                    }
                 });
-                sassyRepliesContainer.appendChild(chip);
+                container.appendChild(chip);
             });
         }
         
         // Send a message
         function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            if (!messageInput) return;
+            
             const message = messageInput.value.trim();
             if (!message) return;
+            
+            console.log("Sending message:", message);
+            
+            // Hide empty state
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
             
             // Add user message
             addMessage("You", message, true);
@@ -723,8 +1285,25 @@
             // Clear input
             messageInput.value = '';
             
-            // Increment message count
+            // Update stats
             messageCount++;
+            xp += 2;
+            
+            // Check for level up
+            if (xp >= xpNeeded) {
+                levelUp();
+            }
+            
+            // Update streak
+            if (Math.random() > 0.7) {
+                streakCount++;
+                if (streakCount % 3 === 0) {
+                    showAchievement("Streak Master!", `${streakCount} day streak`);
+                }
+            }
+            
+            // Save to storage
+            saveToStorage();
             
             // Play sound if enabled
             if (soundEnabled) {
@@ -745,7 +1324,10 @@
                     playReceiveSound();
                 }
                 
-                // Special responses for certain conditions
+                // Check for achievements
+                checkAchievements();
+                
+                // Special responses
                 if (messageCount % 5 === 0) {
                     setTimeout(() => {
                         addMessage("CoffeeBot", "Ab toh bore kar raha hai... Coffee piyega?", false);
@@ -764,6 +1346,9 @@
         
         // Add a message to the chat
         function addMessage(sender, text, isUser) {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             
@@ -781,12 +1366,23 @@
             
             chatMessages.appendChild(messageDiv);
             
-            // Scroll to the bottom of chat messages
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Scroll to the bottom
+            scrollToBottom();
+        }
+        
+        // Scroll to bottom of messages
+        function scrollToBottom() {
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
         }
         
         // Show typing indicator
         function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+            
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message bot-message';
             typingDiv.id = 'typingIndicator';
@@ -805,7 +1401,7 @@
             `;
             
             chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            scrollToBottom();
         }
         
         // Remove typing indicator
@@ -821,15 +1417,134 @@
             return botResponses[Math.floor(Math.random() * botResponses.length)];
         }
         
+        // Load data from localStorage
+        function loadFromStorage() {
+            try {
+                const savedData = localStorage.getItem('coffeeChatData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    messageCount = data.messageCount || 0;
+                    streakCount = data.streakCount || 1;
+                    level = data.level || 1;
+                    xp = data.xp || 0;
+                    achievements = data.achievements || [];
+                }
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+            }
+        }
+        
+        // Save data to localStorage
+        function saveToStorage() {
+            try {
+                const data = {
+                    messageCount,
+                    streakCount,
+                    level,
+                    xp,
+                    achievements,
+                    lastActive: new Date().toISOString()
+                };
+                localStorage.setItem('coffeeChatData', JSON.stringify(data));
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+            }
+        }
+        
+        // Level up function
+        function levelUp() {
+            level++;
+            xp = 0;
+            xpNeeded = Math.floor(xpNeeded * 1.5);
+            
+            // Show level up achievement
+            showAchievement(`Level ${level} Unlocked!`, "Keep chatting to level up more!");
+            
+            // Special message from bot
+            setTimeout(() => {
+                addMessage("CoffeeBot", `Wow, level ${level} already! You're addicted to me! 😏`, false);
+            }, 500);
+        }
+        
+        // Check for achievements
+        function checkAchievements() {
+            if (messageCount === 1 && !achievements.includes('firstMessage')) {
+                showAchievement("First Message!", "You sent your first message");
+                achievements.push('firstMessage');
+            }
+            
+            if (messageCount === 5 && !achievements.includes('chatStarter')) {
+                showAchievement("Chat Starter!", "5 messages sent");
+                achievements.push('chatStarter');
+            }
+            
+            if (messageCount === 10 && !achievements.includes('coffeeAddict')) {
+                showAchievement("Coffee Addict!", "10 messages sent");
+                achievements.push('coffeeAddict');
+            }
+            
+            if (streakCount >= 3 && !achievements.includes('streakMaster')) {
+                showAchievement("Streak Master!", "3 day streak");
+                achievements.push('streakMaster');
+            }
+            
+            saveToStorage();
+        }
+        
+        // Show achievement popup
+        function showAchievement(title, description) {
+            const achievementPopup = document.getElementById('achievementPopup');
+            const achievementText = document.getElementById('achievementText');
+            
+            if (!achievementPopup || !achievementText) return;
+            
+            achievementText.innerHTML = `<strong>${title}</strong><br><small>${description}</small>`;
+            achievementPopup.style.display = 'flex';
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                achievementPopup.style.display = 'none';
+            }, 3000);
+            
+            // Play achievement sound if enabled
+            if (soundEnabled) {
+                playAchievementSound();
+            }
+        }
+        
         // Clear the chat
         function clearChat() {
-            chatMessages.innerHTML = '';
-            messageCount = 0;
+            const chatMessages = document.getElementById('chatMessages');
+            const emptyState = document.getElementById('emptyState');
             
-            // Add a welcome back message
+            if (chatMessages) {
+                // Keep only the initial bot message
+                const initialMessage = chatMessages.querySelector('.bot-message');
+                chatMessages.innerHTML = '';
+                
+                if (initialMessage) {
+                    chatMessages.appendChild(initialMessage);
+                }
+            }
+            
+            messageCount = 0;
+            xp = Math.max(0, xp - 5);
+            
+            // Show empty state
+            if (emptyState) {
+                emptyState.style.display = 'flex';
+            }
+            
+            // Add welcome back message
             setTimeout(() => {
+                if (emptyState) {
+                    emptyState.style.display = 'none';
+                }
                 addMessage("CoffeeBot", "Chat clear! Ab kya bolna chahta hai?", false);
             }, 500);
+            
+            // Save to storage
+            saveToStorage();
             
             // Play clear sound if enabled
             if (soundEnabled) {
@@ -842,39 +1557,31 @@
             isLightTheme = !isLightTheme;
             
             if (isLightTheme) {
-                document.body.style.backgroundColor = '#f5f5f5';
-                document.body.style.color = '#333';
-                document.querySelector('.header').style.backgroundColor = '#fff';
-                document.querySelector('.header').style.color = '#333';
-                document.querySelectorAll('.chat-container, .feature-card').forEach(el => {
-                    el.style.backgroundColor = '#fff';
-                    el.style.color = '#333';
-                    el.style.borderColor = '#ddd';
-                });
-                document.querySelectorAll('.chat-btn, .chat-input').forEach(el => {
-                    el.style.backgroundColor = '#f0f0f0';
-                    el.style.color = '#333';
-                });
-                document.querySelector('.footer').style.backgroundColor = '#fff';
-                document.querySelector('.footer').style.color = '#666';
-                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Theme';
+                document.documentElement.style.setProperty('--bg-dark', '#f5f5f7');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--bg-input', '#f0f0f5');
+                document.documentElement.style.setProperty('--text', '#1a1a1a');
+                document.documentElement.style.setProperty('--text-secondary', '#666666');
+                document.documentElement.style.setProperty('--shadow', '0 10px 30px rgba(0, 0, 0, 0.1)');
+                
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                    if (window.innerWidth > 768) themeToggle.innerHTML += '<span>Dark</span>';
+                }
             } else {
-                document.body.style.backgroundColor = '#0a0a0a';
-                document.body.style.color = '#fff';
-                document.querySelector('.header').style.backgroundColor = '#000';
-                document.querySelector('.header').style.color = '#fff';
-                document.querySelectorAll('.chat-container, .feature-card').forEach(el => {
-                    el.style.backgroundColor = '#111';
-                    el.style.color = '#fff';
-                    el.style.borderColor = '#333';
-                });
-                document.querySelectorAll('.chat-btn, .chat-input').forEach(el => {
-                    el.style.backgroundColor = '#222';
-                    el.style.color = '#fff';
-                });
-                document.querySelector('.footer').style.backgroundColor = '#000';
-                document.querySelector('.footer').style.color = '#aaa';
-                themeToggle.innerHTML = '<i class="fas fa-moon"></i> Theme';
+                document.documentElement.style.setProperty('--bg-dark', '#0F0F1A');
+                document.documentElement.style.setProperty('--bg-card', '#1A1A2E');
+                document.documentElement.style.setProperty('--bg-input', '#25253D');
+                document.documentElement.style.setProperty('--text', '#FFFFFF');
+                document.documentElement.style.setProperty('--text-secondary', '#A0A0C0');
+                document.documentElement.style.setProperty('--shadow', '0 10px 30px rgba(255, 107, 53, 0.15)');
+                
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    if (window.innerWidth > 768) themeToggle.innerHTML += '<span>Light</span>';
+                }
             }
             
             // Play theme toggle sound if enabled
@@ -886,12 +1593,18 @@
         // Toggle sound on/off
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            if (soundEnabled) {
-                soundToggle.innerHTML = '<i class="fas fa-volume-up"></i> Sound';
-                // Play a sound when enabling
-                playReceiveSound();
-            } else {
-                soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i> Sound';
+            
+            const soundToggle = document.getElementById('soundToggle');
+            if (soundToggle) {
+                if (soundEnabled) {
+                    soundToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    if (window.innerWidth > 768) soundToggle.innerHTML += '<span>Sound</span>';
+                    // Play a sound when enabling
+                    playReceiveSound();
+                } else {
+                    soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    if (window.innerWidth > 768) soundToggle.innerHTML += '<span>Sound</span>';
+                }
             }
         }
         
@@ -912,7 +1625,7 @@
                 const textToCopy = `CoffeeChat - The Sassy Bot\n\nMy chat with CoffeeBot:\n\n${chatText}\n\nTry it yourself at: ${window.location.href}`;
                 navigator.clipboard.writeText(textToCopy)
                     .then(() => {
-                        alert('Chat copied to clipboard! Share it with your friends.');
+                        showAchievement("Copied!", "Chat copied to clipboard!");
                     })
                     .catch(err => {
                         console.error('Could not copy text: ', err);
@@ -922,6 +1635,14 @@
             // Play share sound if enabled
             if (soundEnabled) {
                 playShareSound();
+            }
+            
+            // Close panel if on mobile
+            if (window.innerWidth < 1024) {
+                const featuresPanel = document.getElementById('featuresPanel');
+                if (featuresPanel) {
+                    featuresPanel.classList.remove('active');
+                }
             }
         }
         
@@ -940,108 +1661,187 @@
         
         // Sound functions
         function playSendSound() {
-            // Create a simple send sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
-        }
-        
-        function playReceiveSound() {
-            // Create a simple receive sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 400;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        }
-        
-        function playClearSound() {
-            // Create a clear sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
-            oscillator.type = 'sawtooth';
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
-        }
-        
-        function playThemeSound() {
-            // Create a theme toggle sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
-            oscillator.type = 'triangle';
-            
-            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        }
-        
-        function playShareSound() {
-            // Create a share sound
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Create multiple oscillators for a more interesting sound
-            for (let i = 0; i < 3; i++) {
+            try {
+                // Create a simple send sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                oscillator.frequency.value = 300 + (i * 100);
-                oscillator.type = i === 0 ? 'sine' : 'square';
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
                 
-                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + (i * 0.05));
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3 + (i * 0.05));
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
                 
-                oscillator.start(audioContext.currentTime + (i * 0.05));
-                oscillator.stop(audioContext.currentTime + 0.3 + (i * 0.05));
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // Audio context not supported
             }
         }
         
-        // Initialize the app when the page loads
-        window.addEventListener('DOMContentLoaded', initApp);
+        function playReceiveSound() {
+            try {
+                // Create a simple receive sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 400;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (e) {
+                // Audio context not supported
+            }
+        }
+        
+        function playClearSound() {
+            try {
+                // Create a clear sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+                oscillator.type = 'sawtooth';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                // Audio context not supported
+            }
+        }
+        
+        function playThemeSound() {
+            try {
+                // Create a theme toggle sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
+                oscillator.type = 'triangle';
+                
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (e) {
+                // Audio context not supported
+            }
+        }
+        
+        function playShareSound() {
+            try {
+                // Create a share sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create multiple oscillators for a more interesting sound
+                for (let i = 0; i < 3; i++) {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 300 + (i * 100);
+                    oscillator.type = i === 0 ? 'sine' : 'square';
+                    
+                    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + (i * 0.05));
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3 + (i * 0.05));
+                    
+                    oscillator.start(audioContext.currentTime + (i * 0.05));
+                    oscillator.stop(audioContext.currentTime + 0.3 + (i * 0.05));
+                }
+            } catch (e) {
+                // Audio context not supported
+            }
+        }
+        
+        function playAchievementSound() {
+            try {
+                // Create an achievement sound
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                for (let i = 0; i < 5; i++) {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 400 + (i * 100);
+                    oscillator.type = i % 2 === 0 ? 'sine' : 'triangle';
+                    
+                    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + (i * 0.1));
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5 + (i * 0.1));
+                    
+                    oscillator.start(audioContext.currentTime + (i * 0.1));
+                    oscillator.stop(audioContext.currentTime + 0.5 + (i * 0.1));
+                }
+            } catch (e) {
+                // Audio context not supported
+            }
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            // Update button text visibility
+            const themeToggle = document.getElementById('themeToggle');
+            const soundToggle = document.getElementById('soundToggle');
+            const clearChatButton = document.getElementById('clearChat');
+            
+            if (window.innerWidth <= 768) {
+                if (themeToggle) {
+                    const span = themeToggle.querySelector('span');
+                    if (span) span.style.display = 'none';
+                }
+                if (soundToggle) {
+                    const span = soundToggle.querySelector('span');
+                    if (span) span.style.display = 'none';
+                }
+                if (clearChatButton) {
+                    const span = clearChatButton.querySelector('span');
+                    if (span) span.style.display = 'none';
+                }
+            } else {
+                if (themeToggle) {
+                    const span = themeToggle.querySelector('span');
+                    if (span) span.style.display = 'inline';
+                }
+                if (soundToggle) {
+                    const span = soundToggle.querySelector('span');
+                    if (span) span.style.display = 'inline';
+                }
+                if (clearChatButton) {
+                    const span = clearChatButton.querySelector('span');
+                    if (span) span.style.display = 'inline';
+                }
+            }
+        });
     </script>
 </body>
 </html>

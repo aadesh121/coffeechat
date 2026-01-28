@@ -63,6 +63,7 @@
             margin: 0 auto;
             width: 100%;
             padding: 20px;
+            min-height: 0; /* Important for proper flex child scrolling */
         }
         
         .chat-container {
@@ -74,6 +75,7 @@
             flex-direction: column;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             border: 1px solid #333;
+            min-height: 0; /* Important for proper flex child scrolling */
         }
         
         .chat-header {
@@ -83,6 +85,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0; /* Prevent header from shrinking */
         }
         
         .bot-info {
@@ -141,6 +144,8 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            min-height: 0; /* Critical for proper scrolling in flex container */
+            max-height: 60vh; /* Limit height for better scrolling */
         }
         
         .message {
@@ -216,6 +221,7 @@
             background-color: #000;
             display: flex;
             gap: 10px;
+            flex-shrink: 0; /* Prevent input area from shrinking */
         }
         
         .chat-input {
@@ -340,6 +346,7 @@
             background-color: #000;
             border-top: 1px solid #333;
             margin-top: 20px;
+            flex-shrink: 0; /* Prevent footer from shrinking */
         }
         
         .mobile-warning {
@@ -349,6 +356,7 @@
             text-align: center;
             color: #ff2e2e;
             font-style: italic;
+            flex-shrink: 0; /* Prevent warning from shrinking */
         }
         
         /* Responsive Design */
@@ -386,6 +394,10 @@
             .mobile-warning {
                 display: block;
             }
+            
+            .chat-messages {
+                max-height: 50vh; /* Adjusted for mobile */
+            }
         }
         
         @media (max-width: 480px) {
@@ -409,6 +421,10 @@
             
             h1 {
                 font-size: 1.8rem;
+            }
+            
+            .chat-messages {
+                max-height: 45vh; /* Further adjusted for smaller mobile */
             }
         }
         
@@ -462,6 +478,25 @@
         @keyframes float {
             0% { transform: translateY(100vh) rotate(0deg); }
             100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #111;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ff2e2e;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #ff5555;
         }
     </style>
 </head>
@@ -745,6 +780,8 @@
             `;
             
             chatMessages.appendChild(messageDiv);
+            
+            // Scroll to the bottom of chat messages
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         

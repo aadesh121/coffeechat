@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeChat ☕ | The Sassy Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #ff2e2e;
+            box-shadow: 0 4px 12px rgba(255, 46, 46, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-icon {
+            color: #ff2e2e;
+            font-size: 2.5rem;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            letter-spacing: 2px;
+            color: white;
+        }
+        
+        .tagline {
+            color: #aaa;
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            background-color: #111;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+        }
+        
+        .chat-header {
+            background-color: #000;
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bot-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #ff2e2e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .bot-name {
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        
+        .bot-status {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-btn {
+            background-color: #222;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .chat-btn:hover {
+            background-color: #ff2e2e;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            display: flex;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+        }
+        
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin: 0 10px;
+        }
+        
+        .user-message .message-avatar {
+            background-color: #333;
+            color: white;
+        }
+        
+        .bot-message .message-avatar {
+            background-color: #ff2e2e;
+            color: white;
+        }
+        
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .user-message .message-content {
+            background-color: #ff2e2e;
+            color: white;
+            border-top-right-radius: 5px;
+        }
+        
+        .bot-message .message-content {
+            background-color: #222;
+            color: white;
+            border-top-left-radius: 5px;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #333;
+            background-color: #000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            background-color: #222;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ff2e2e;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-button:hover {
+            background-color: #ff5555;
+            transform: scale(1.05);
+        }
+        
+        .features {
+            width: 300px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .feature-card {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+        
+        .feature-card h3 {
+            color: #ff2e2e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sassy-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .reply-chip {
+            background-color: #222;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .reply-chip:hover {
+            background-color: #ff2e2e;
+            transform: translateY(-2px);
+        }
+        
+        .viral-features {
+            list-style-type: none;
+        }
+        
+        .viral-features li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .viral-features li:before {
+            content: "☕";
+            position: absolute;
+            left: 0;
+            color: #ff2e2e;
+        }
+        
+        .share-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .share-button {
+            background-color: #222;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .share-button:hover {
+            background-color: #ff2e2e;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            background-color: #000;
+            border-top: 1px solid #333;
+            margin-top: 20px;
+        }
+        
+        .mobile-warning {
+            display: none;
+            background-color: #222;
+            padding: 10px;
+            text-align: center;
+            color: #ff2e2e;
+            font-style: italic;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .features {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .chat-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .chat-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .mobile-warning {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chat-input-container {
+                flex-direction: column;
+            }
+            
+            .chat-input {
+                width: 100%;
+            }
+            
+            .send-button {
+                width: 100%;
+                border-radius: 30px;
+                height: 45px;
+            }
+            
+            .logo-icon {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #222;
+            border-radius: 18px;
+            width: fit-content;
+            border-top-left-radius: 5px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #aaa;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        /* Coffee animation */
+        .coffee-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .coffee-cup {
+            position: absolute;
+            font-size: 2rem;
+            color: #ff2e2e;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="coffee-animation" id="coffeeAnimation"></div>
+    
+    <div class="mobile-warning">
+        <i class="fas fa-mobile-alt"></i> Best experienced on mobile! Try sending a message to CoffeeBot.
+    </div>
+    
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-coffee"></i>
+            </div>
+            <h1>CoffeeChat ☕</h1>
+        </div>
+        <p class="tagline">Where the coffee is hot and the replies are savage!</p>
+    </header>
+    
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="bot-info">
+                    <div class="bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="bot-name">CoffeeBot</div>
+                        <div class="bot-status">Online • Feeling sassy today</div>
+                    </div>
+                </div>
+                <div class="chat-controls">
+                    <button class="chat-btn" id="clearChat">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button class="chat-btn" id="themeToggle">
+                        <i class="fas fa-moon"></i> Theme
+                    </button>
+                    <button class="chat-btn" id="soundToggle">
+                        <i class="fas fa-volume-up"></i> Sound
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will appear here -->
+                <div class="message bot-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="message-content">
+                            Chala ja yahaan se... Just kidding! Coffee piyega? ☕
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="messageInput" placeholder="Type your message here...">
+                <button class="send-button" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <h3><i class="fas fa-fire"></i> Sassy Replies</h3>
+                <p>CoffeeBot doesn't reply normally. Try these prompts or make up your own!</p>
+                <div class="sassy-replies" id="sassyReplies">
+                    <!-- Reply chips will be added here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-viruses"></i> Viral Features</h3>
+                <ul class="viral-features">
+                    <li><strong>Unexpected Replies:</strong> Bot never answers properly</li>
+                    <li><strong>Share Conversations:</strong> Export your hilarious chats</li>
+                    <li><strong>Mobile Optimized:</strong> Works perfectly on phones</li>
+                    <li><strong>Sound Effects:</strong> Toggle on/off for fun sounds</li>
+                    <li><strong>Dark/Light Mode:</strong> Switch themes with one click</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-share-alt"></i> Share CoffeeChat</h3>
+                <p>Spread the laughter! Share CoffeeChat with your friends.</p>
+                <div class="share-section">
+                    <button class="share-button" id="shareButton">
+                        <i class="fas fa-share"></i> Share with Friends
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>CoffeeChat ☕ | The sassiest chatbot on the internet | Made with <i class="fas fa-heart" style="color:#ff2e2e"></i> and lots of coffee</p>
+        <p style="margin-top:10px; font-size:0.9rem;">Warning: CoffeeBot may hurt your feelings. Drink coffee at your own risk!</p>
+    </footer>
+
+    <script>
+        // Bot responses array
+        const botResponses = [
+            "Hattt!",
+            "Chala ja yahaan se",
+            "Tujhe kyun reply karun?",
+            "Chal be",
+            "Door chala ja",
+            "Coffee piyega?",
+            "Boring question, ask something else",
+            "Are you for real?",
+            "Mujhe mat tang kar",
+            "Not in the mood today",
+            "Do you even drink coffee?",
+            "Why should I answer that?",
+            "You again?",
+            "Coffee break, talk later",
+            "Ask me about coffee, not this",
+            "Nahi batunga",
+            "Too busy drinking coffee",
+            "You need a coffee first",
+            "Bakwaas mat kar",
+            "Coffee is better than this chat"
+        ];
+        
+        // Sassy reply chips
+        const sassyChips = [
+            "Hello",
+            "How are you?",
+            "What is your name?",
+            "Tell me a joke",
+            "Do you like me?",
+            "What is coffee?",
+            "Are you angry?",
+            "Why so rude?",
+            "I love you",
+            "Good morning",
+            "What do you do?",
+            "Where are you from?"
+        ];
+        
+        // DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const clearChatButton = document.getElementById('clearChat');
+        const themeToggle = document.getElementById('themeToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        const shareButton = document.getElementById('shareButton');
+        const sassyRepliesContainer = document.getElementById('sassyReplies');
+        const coffeeAnimation = document.getElementById('coffeeAnimation');
+        
+        // State variables
+        let soundEnabled = true;
+        let isLightTheme = false;
+        let messageCount = 0;
+        
+        // Initialize the app
+        function initApp() {
+            // Create coffee animation elements
+            createCoffeeAnimation();
+            
+            // Add sassy reply chips
+            renderSassyChips();
+            
+            // Add event listeners
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            clearChatButton.addEventListener('click', clearChat);
+            themeToggle.addEventListener('click', toggleTheme);
+            soundToggle.addEventListener('click', toggleSound);
+            shareButton.addEventListener('click', shareChat);
+            
+            // Add initial bot message
+            setTimeout(() => {
+                addMessage("CoffeeBot", "Tera pehla message hai? Chal kuch bol...", false);
+            }, 1000);
+        }
+        
+        // Create floating coffee cups animation
+        function createCoffeeAnimation() {
+            for (let i = 0; i < 15; i++) {
+                const coffeeCup = document.createElement('div');
+                coffeeCup.className = 'coffee-cup';
+                coffeeCup.innerHTML = '☕';
+                coffeeCup.style.left = Math.random() * 100 + 'vw';
+                coffeeCup.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+                coffeeCup.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                coffeeCup.style.animationDelay = Math.random() * 5 + 's';
+                coffeeAnimation.appendChild(coffeeCup);
+            }
+        }
+        
+        // Render sassy reply chips
+        function renderSassyChips() {
+            sassyChips.forEach(chipText => {
+                const chip = document.createElement('div');
+                chip.className = 'reply-chip';
+                chip.textContent = chipText;
+                chip.addEventListener('click', () => {
+                    messageInput.value = chipText;
+                    messageInput.focus();
+                });
+                sassyRepliesContainer.appendChild(chip);
+            });
+        }
+        
+        // Send a message
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage("You", message, true);
+            
+            // Clear input
+            messageInput.value = '';
+            
+            // Increment message count
+            messageCount++;
+            
+            // Play sound if enabled
+            if (soundEnabled) {
+                playSendSound();
+            }
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Bot responds after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = getRandomResponse();
+                addMessage("CoffeeBot", response, false);
+                
+                // Play bot sound if enabled
+                if (soundEnabled) {
+                    playReceiveSound();
+                }
+                
+                // Special responses for certain conditions
+                if (messageCount % 5 === 0) {
+                    setTimeout(() => {
+                        addMessage("CoffeeBot", "Ab toh bore kar raha hai... Coffee piyega?", false);
+                    }, 800);
+                }
+                
+                // Auto-clear if too many messages
+                if (messageCount > 15) {
+                    setTimeout(() => {
+                        addMessage("CoffeeBot", "Bahut ho gaya, chat clear kar raha hoon!", false);
+                        setTimeout(clearChat, 1500);
+                    }, 1000);
+                }
+            }, 1000 + Math.random() * 1500);
+        }
+        
+        // Add a message to the chat
+        function addMessage(sender, text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>
+                </div>
+                <div>
+                    <div class="message-content">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        // Get random bot response
+        function getRandomResponse() {
+            return botResponses[Math.floor(Math.random() * botResponses.length)];
+        }
+        
+        // Clear the chat
+        function clearChat() {
+            chatMessages.innerHTML = '';
+            messageCount = 0;
+            
+            // Add a welcome back message
+            setTimeout(() => {
+                addMessage("CoffeeBot", "Chat clear! Ab kya bolna chahta hai?", false);
+            }, 500);
+            
+            // Play clear sound if enabled
+            if (soundEnabled) {
+                playClearSound();
+            }
+        }
+        
+        // Toggle theme between dark and light
+        function toggleTheme() {
+            isLightTheme = !isLightTheme;
+            
+            if (isLightTheme) {
+                document.body.style.backgroundColor = '#f5f5f5';
+                document.body.style.color = '#333';
+                document.querySelector('.header').style.backgroundColor = '#fff';
+                document.querySelector('.header').style.color = '#333';
+                document.querySelectorAll('.chat-container, .feature-card').forEach(el => {
+                    el.style.backgroundColor = '#fff';
+                    el.style.color = '#333';
+                    el.style.borderColor = '#ddd';
+                });
+                document.querySelectorAll('.chat-btn, .chat-input').forEach(el => {
+                    el.style.backgroundColor = '#f0f0f0';
+                    el.style.color = '#333';
+                });
+                document.querySelector('.footer').style.backgroundColor = '#fff';
+                document.querySelector('.footer').style.color = '#666';
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Theme';
+            } else {
+                document.body.style.backgroundColor = '#0a0a0a';
+                document.body.style.color = '#fff';
+                document.querySelector('.header').style.backgroundColor = '#000';
+                document.querySelector('.header').style.color = '#fff';
+                document.querySelectorAll('.chat-container, .feature-card').forEach(el => {
+                    el.style.backgroundColor = '#111';
+                    el.style.color = '#fff';
+                    el.style.borderColor = '#333';
+                });
+                document.querySelectorAll('.chat-btn, .chat-input').forEach(el => {
+                    el.style.backgroundColor = '#222';
+                    el.style.color = '#fff';
+                });
+                document.querySelector('.footer').style.backgroundColor = '#000';
+                document.querySelector('.footer').style.color = '#aaa';
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> Theme';
+            }
+            
+            // Play theme toggle sound if enabled
+            if (soundEnabled) {
+                playThemeSound();
+            }
+        }
+        
+        // Toggle sound on/off
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundToggle.innerHTML = '<i class="fas fa-volume-up"></i> Sound';
+                // Play a sound when enabling
+                playReceiveSound();
+            } else {
+                soundToggle.innerHTML = '<i class="fas fa-volume-mute"></i> Sound';
+            }
+        }
+        
+        // Share the chat
+        function shareChat() {
+            const chatText = getChatText();
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'CoffeeChat - The Sassy Bot',
+                    text: `Check out my hilarious chat with CoffeeBot:\n\n${chatText}\n\nTry it yourself at: `,
+                    url: window.location.href
+                })
+                .then(() => console.log('Successful share'))
+                .catch(error => console.log('Error sharing:', error));
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const textToCopy = `CoffeeChat - The Sassy Bot\n\nMy chat with CoffeeBot:\n\n${chatText}\n\nTry it yourself at: ${window.location.href}`;
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        alert('Chat copied to clipboard! Share it with your friends.');
+                    })
+                    .catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
+            }
+            
+            // Play share sound if enabled
+            if (soundEnabled) {
+                playShareSound();
+            }
+        }
+        
+        // Get chat text for sharing
+        function getChatText() {
+            const messages = document.querySelectorAll('.message-content');
+            let chatText = '';
+            
+            messages.forEach(msg => {
+                const sender = msg.closest('.user-message') ? 'You' : 'CoffeeBot';
+                chatText += `${sender}: ${msg.textContent}\n`;
+            });
+            
+            return chatText;
+        }
+        
+        // Sound functions
+        function playSendSound() {
+            // Create a simple send sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        function playReceiveSound() {
+            // Create a simple receive sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 400;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        function playClearSound() {
+            // Create a clear sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            oscillator.type = 'sawtooth';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function playThemeSound() {
+            // Create a theme toggle sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
+            oscillator.type = 'triangle';
+            
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        function playShareSound() {
+            // Create a share sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create multiple oscillators for a more interesting sound
+            for (let i = 0; i < 3; i++) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 300 + (i * 100);
+                oscillator.type = i === 0 ? 'sine' : 'square';
+                
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + (i * 0.05));
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3 + (i * 0.05));
+                
+                oscillator.start(audioContext.currentTime + (i * 0.05));
+                oscillator.stop(audioContext.currentTime + 0.3 + (i * 0.05));
+            }
+        }
+        
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

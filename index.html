@@ -777,13 +777,14 @@
         }
         
         .messages-container {
-            padding: 15px 12px;
-            gap: 15px;
-            height: calc(100vh - 140px); /* Account for header and input */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
+    padding: 15px 12px 90px 12px; /* CHANGED: Added bottom padding */
+    gap: 15px;
+    height: calc(100vh - 70px); /* CHANGED: Reduced from 140px to 70px */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box; /* ADD THIS LINE */
+}
+
         .message {
             max-width: 90%;
         }
@@ -921,10 +922,11 @@
         }
         
         .messages-container {
-            padding: 12px 10px;
-            gap: 12px;
-            height: calc(100vh - 135px);
-        }
+    padding: 12px 10px 85px 10px; /* CHANGED: Added bottom padding */
+    gap: 12px;
+    height: calc(100vh - 65px); /* CHANGED: Reduced from 135px to 65px */
+    box-sizing: border-box; /* ADD THIS LINE */
+}
         
         .message {
             max-width: 95%;
@@ -1016,6 +1018,14 @@
             margin: 0 4px;
             font-size: 0.8rem;
         }
+
+        /* Ensure messages wrap properly */
+.message-content {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
     }
     
     /* Fix for mobile viewport height */

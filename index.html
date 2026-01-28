@@ -2103,6 +2103,171 @@ if (originalAddMessage) {
 // Also scroll to bottom on page load
 setTimeout(scrollToBottom, 500);
 
+// ====== ADD SMART WEBSITE OPENING FUNCTIONALITY ======
+// Function to check for special commands with flexible phrasing
+function checkSpecialCommands(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Website mapping
+    const websiteMap = {
+        // Search & Information
+        "google": "https://www.google.com",
+        "wikipedia": "https://www.wikipedia.org",
+        "wiki": "https://www.wikipedia.org",
+        "youtube": "https://www.youtube.com",
+        "facebook": "https://www.facebook.com",
+        "instagram": "https://www.instagram.com",
+        "twitter": "https://www.twitter.com",
+        "whatsapp": "https://web.whatsapp.com",
+        
+        // Entertainment
+        "netflix": "https://www.netflix.com",
+        "amazonprime": "https://www.primevideo.com",
+        "primevideo": "https://www.primevideo.com",
+        "hotstar": "https://www.hotstar.com",
+        "spotify": "https://open.spotify.com",
+        
+        // Shopping
+        "amazon": "https://www.amazon.com",
+        "flipkart": "https://www.flipkart.com",
+        
+        // Tech
+        "github": "https://github.com",
+        "chatgpt": "https://chat.openai.com",
+        "gmail": "https://mail.google.com",
+        
+        // Indian
+        "paytm": "https://paytm.com",
+        "phonepe": "https://www.phonepe.com",
+        "zomato": "https://www.zomato.com",
+        "swiggy": "https://www.swiggy.com",
+        "ola": "https://www.olacabs.com",
+        "uber": "https://www.uber.com"
+    };
+    
+    // Common opening phrases (supports ANY phrasing)
+    const openingPhrases = [
+        "open",
+        "please open",
+        "can you open",
+        "could you open", 
+        "would you open",
+        "i want to open",
+        "open for me",
+        "launch",
+        "start",
+        "go to",
+        "visit",
+        "navigate to",
+        "take me to",
+        "show me"
+    ];
+    
+    // First, extract website name from ANY phrasing
+    let websiteKey = "";
+    
+    // Check each opening phrase
+    for (const phrase of openingPhrases) {
+        if (lowerMessage.includes(phrase)) {
+            // Remove the phrase and get the website
+            const temp = lowerMessage.replace(phrase, "").trim();
+            
+            // Remove common filler words
+            const cleaned = temp.replace(/\b(please|can you|could you|would you|for me|me|the|a|an)\b/g, "").trim();
+            
+            // Remove ".com" if present
+            const final = cleaned.replace(/\.com$/i, "").trim();
+            
+            if (final && websiteMap[final]) {
+                websiteKey = final;
+                break;
+            }
+        }
+    }
+    
+    // Also check if message is JUST a website name
+    if (!websiteKey && websiteMap[lowerMessage]) {
+        websiteKey = lowerMessage;
+    }
+    
+    // Also check if message ends with website name
+    if (!websiteKey) {
+        const words = lowerMessage.split(" ");
+        const lastWord = words[words.length - 1];
+        if (websiteMap[lastWord]) {
+            websiteKey = lastWord;
+        }
+    }
+    
+    // If we found a website to open
+    if (websiteKey && websiteMap[websiteKey]) {
+        const url = websiteMap[websiteKey];
+        const websiteName = websiteKey.charAt(0).toUpperCase() + websiteKey.slice(1);
+        
+        // Add bot response with sassy variation
+        const responses = [
+            `Opening ${websiteName} for you... 🌐`,
+            `Chala ja ${websiteName} pe... Just kidding! Opening now! 😄`,
+            `${websiteName} khol raha hoon... Wait karo!`,
+            `As you wish! Opening ${websiteName}... 🚀`,
+            `${websiteName}? Chal, khol deta hoon! ☕`
+        ];
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        addMessage("CoffeeBot", randomResponse, false);
+        
+        // Open website in new tab
+        setTimeout(() => {
+            window.open(url, "_blank");
+            
+            // Add follow-up message
+            setTimeout(() => {
+                const followUps = [
+                    `${websiteName} opened! Ab kya? 😎`,
+                    `Done! ${websiteName} is now open. Coffee piyega? ☕`,
+                    `Opened! Ab teri marzi... 😏`,
+                    `${websiteName} ready hai! Kya karega ab? 🤔`
+                ];
+                const randomFollowUp = followUps[Math.floor(Math.random() * followUps.length)];
+                addMessage("CoffeeBot", randomFollowUp, false);
+            }, 1000);
+        }, 1500);
+        
+        return true;
+    }
+    
+    return false; // No special command found
+}
+
+// Modify the existing sendMessage function
+const originalSendMessage = window.sendMessage;
+if (typeof originalSendMessage === 'function') {
+    window.sendMessage = function() {
+        const messageInput = document.getElementById('messageInput');
+        if (!messageInput) return;
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        // First check if it's a special command
+        if (checkSpecialCommands(message)) {
+            messageInput.value = '';
+            return;
+        }
+        
+        originalSendMessage();
+    };
+}
+
+// Add this line to your existing initApp() function:
+// console.log("Smart website opener enabled! Try 'please open youtube' or 'can you open google'");
+
+// Helpful hint
+setTimeout(() => {
+    addMessage("CoffeeBot", "Psst... You can say 'please open youtube', 'can you open google', or just 'wikipedia' to open websites! 🎯", false);
+}, 4000);
+// ====== END OF ADDED CODE ======
+
     </script>
 </body>
 </html>

@@ -3296,6 +3296,777 @@ setTimeout(() => {
 }, 1000);
 // ====== END OF PHOTO FUNCTIONALITY ======
 
+
+// ====== ADD PDF SENDING FUNCTIONALITY ======
+// PDFs available in the pdfs folder
+const availablePDFs = {
+    "aktu syllabus": "aktu-syllabus.pdf",
+    "aktu timetable": "aktu-timetable.pdf",
+    "aktu previous papers": "aktu-previous-papers.pdf",
+    "engineering mathematics": "engineering-mathematics.pdf",
+    "physics syllabus": "physics-syllabus.pdf",
+    "chemistry syllabus": "chemistry-syllabus.pdf",
+    "computer science syllabus": "computer-science-syllabus.pdf",
+    "mechanical engineering syllabus": "mechanical-engineering-syllabus.pdf",
+    "electrical engineering syllabus": "electrical-engineering-syllabus.pdf",
+    "civil engineering syllabus": "civil-engineering-syllabus.pdf",
+    "placement preparation guide": "placement-preparation-guide.pdf",
+    "resume template": "resume-template.pdf",
+    "project report format": "project-report-format.pdf",
+    "lab manual": "lab-manual.pdf",
+    "worksheet solutions": "worksheet-solutions.pdf"
+};
+
+// Function to extract PDF request
+function extractPDFRequest(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Check if message contains any PDF-related keywords
+    const pdfKeywords = ['pdf', 'document', 'file', 'notes', 'syllabus', 'paper', 'timetable'];
+    const hasPDFKeyword = pdfKeywords.some(keyword => lowerMessage.includes(keyword));
+    
+    if (hasPDFKeyword) {
+        // Extract the main content (remove PDF keywords and common words)
+        let content = lowerMessage;
+        pdfKeywords.forEach(keyword => {
+            content = content.replace(keyword, '');
+        });
+        
+        content = content.replace(/\b(send|show|get|give|me|please|a|the|of|for)\b/g, '');
+        content = content.trim();
+        
+        return content || null;
+    }
+    
+    // Check if message matches any PDF name
+    for (const pdfName in availablePDFs) {
+        if (lowerMessage.includes(pdfName)) {
+            return pdfName;
+        }
+    }
+    
+    return null;
+}
+
+// Function to find matching PDF
+function findMatchingPDF(pdfRequest) {
+    if (!pdfRequest) return null;
+    
+    const lowerRequest = pdfRequest.toLowerCase();
+    
+    // Exact match
+    if (availablePDFs[lowerRequest]) {
+        return {
+            filename: availablePDFs[lowerRequest],
+            displayName: lowerRequest.charAt(0).toUpperCase() + lowerRequest.slice(1)
+        };
+    }
+    
+    // Partial match
+    for (const [pdfName, filename] of Object.entries(availablePDFs)) {
+        if (lowerRequest.includes(pdfName) || pdfName.includes(lowerRequest)) {
+            return {
+                filename: filename,
+                displayName: pdfName.charAt(0).toUpperCase() + pdfName.slice(1)
+            };
+        }
+    }
+    
+    // Word-by-word match
+    const words = lowerRequest.split(' ');
+    for (const [pdfName, filename] of Object.entries(availablePDFs)) {
+        for (const word of words) {
+            if (word.length > 3 && pdfName.includes(word)) {
+                return {
+                    filename: filename,
+                    displayName: pdfName.charAt(0).toUpperCase() + pdfName.slice(1),
+                    note: `Found similar PDF for "${pdfRequest}"`
+                };
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Function to create WhatsApp-style PDF UI
+function createPDFMessage(pdfInfo) {
+    const pdfUrl = `pdfs/${pdfInfo.filename}`;
+    const fileSize = "2.4 MB"; // You can make this dynamic if needed
+    
+    const pdfContainer = document.createElement('div');
+    pdfContainer.className = 'pdf-message-container';
+    
+    // WhatsApp-style PDF UI - Changed: removed text from buttons
+    pdfContainer.innerHTML = `
+        <div class="pdf-message">
+            <div class="pdf-header">
+                <div class="pdf-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="pdf-info">
+                    <div class="pdf-title">${pdfInfo.displayName}.pdf</div>
+                    <div class="pdf-subtitle">PDF Document • ${fileSize}</div>
+                </div>
+            </div>
+            <div class="pdf-actions">
+                <button class="pdf-action-btn preview-btn" title="Preview PDF">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="pdf-action-btn download-btn" title="Download PDF">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add styles for PDF message
+    if (!document.querySelector('#pdf-message-styles')) {
+        const style = document.createElement('style');
+        style.id = 'pdf-message-styles';
+        style.textContent = `
+            /* PDF Message Container */
+            .pdf-message-container {
+                margin: 10px 0;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            }
+            
+            @keyframes slideIn {
+                from { 
+                    opacity: 0; 
+                    transform: translateY(10px); 
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateY(0); 
+                }
+            }
+            
+            /* WhatsApp-style PDF Message */
+            .pdf-message {
+                background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+                border-radius: 15px;
+                padding: 15px;
+                color: white;
+                box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .pdf-header {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .pdf-icon {
+                width: 50px;
+                height: 50px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                color: #ffebee;
+            }
+            
+            .pdf-info {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .pdf-title {
+                font-weight: 600;
+                font-size: 0.95rem;
+                margin-bottom: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .pdf-subtitle {
+                font-size: 0.8rem;
+                opacity: 0.9;
+            }
+            
+            .pdf-actions {
+                display: flex;
+                gap: 10px;
+            }
+            
+            /* Changed: Buttons with only icons, no text */
+            .pdf-action-btn {
+                flex: 1;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 10px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-width: 44px; /* Minimum touch target size */
+            }
+            
+            .pdf-action-btn:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-2px);
+            }
+            
+            .pdf-action-btn:active {
+                transform: translateY(0);
+            }
+            
+            .pdf-action-btn i {
+                font-size: 1.2rem; /* Slightly larger icons */
+            }
+            
+            /* Removed span styles since we're removing text */
+            
+            /* PDF Preview Modal */
+            .pdf-preview-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .pdf-preview-modal.active {
+                display: flex;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            .preview-content {
+                width: 90%;
+                height: 90%;
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .preview-header {
+                background: #d32f2f;
+                color: white;
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .preview-title {
+                font-weight: 600;
+                font-size: 1rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 70%;
+            }
+            
+            .preview-controls {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .preview-btn {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .preview-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.1);
+            }
+            
+            .preview-body {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            
+            .pdf-preview {
+                width: 100%;
+                height: 100%;
+                border: none;
+                background: white;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .preview-footer {
+                background: white;
+                padding: 15px 20px;
+                border-top: 1px solid #e0e0e0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .preview-download-btn {
+                background: #d32f2f;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.2s ease;
+            }
+            
+            .preview-download-btn:hover {
+                background: #b71c1c;
+                transform: translateY(-2px);
+            }
+            
+            /* Toast Notification */
+            .pdf-toast {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(100px);
+                background: #d32f2f;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+                z-index: 10001;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 500;
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+            
+            .pdf-toast.show {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            
+            .pdf-toast i {
+                animation: pulse 1s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Add event listeners
+    const downloadBtn = pdfContainer.querySelector('.download-btn');
+    const previewBtn = pdfContainer.querySelector('.preview-btn');
+    
+    // Download functionality
+    downloadBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        downloadPDF(pdfUrl, `${pdfInfo.displayName}.pdf`);
+    });
+    
+    // Preview functionality
+    previewBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openPDFPreview(pdfUrl, pdfInfo.displayName);
+    });
+    
+    return pdfContainer;
+}
+
+// Download PDF function
+function downloadPDF(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    showPDFToast('Download started...');
+}
+
+// Open PDF in preview modal
+function openPDFPreview(url, title) {
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'pdf-preview-modal';
+    
+    modal.innerHTML = `
+        <div class="preview-content">
+            <div class="preview-header">
+                <div class="preview-title">${title}.pdf</div>
+                <div class="preview-controls">
+                    <button class="preview-btn open-external-btn" title="Open in new tab">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="preview-btn close-preview-btn" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="preview-body">
+                <iframe src="${url}" class="pdf-preview" 
+                        title="${title} PDF Preview"></iframe>
+            </div>
+            <div class="preview-footer">
+                <div style="font-size: 0.9rem; color: #666;">
+                    <i class="fas fa-info-circle"></i> Scroll to navigate • Use browser controls
+                </div>
+                <button class="preview-download-btn">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Show modal
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+    
+    // Get modal elements
+    const closeBtn = modal.querySelector('.close-preview-btn');
+    const externalBtn = modal.querySelector('.open-external-btn');
+    const downloadBtn = modal.querySelector('.preview-download-btn');
+    
+    // Close modal
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            document.body.removeChild(modal);
+        }, 300);
+    });
+    
+    // Open in new tab
+    externalBtn.addEventListener('click', () => {
+        window.open(url, '_blank');
+        showPDFToast('Opening in new tab...');
+    });
+    
+    // Download from modal
+    downloadBtn.addEventListener('click', () => {
+        downloadPDF(url, `${title}.pdf`);
+    });
+    
+    // Close on ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                document.body.removeChild(modal);
+            }, 300);
+        }
+    });
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                document.body.removeChild(modal);
+            }, 300);
+        }
+    });
+}
+
+// Show toast notification
+function showPDFToast(message) {
+    let toast = document.querySelector('.pdf-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'pdf-toast';
+        document.body.appendChild(toast);
+    }
+    
+    toast.innerHTML = `<i class="fas fa-file-pdf"></i> ${message}`;
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Send requested PDF
+function sendRequestedPDF(pdfRequest, pdfInfo) {
+    // Bot responses
+    const responses = [
+        `📄 Here's the PDF for ${pdfInfo.displayName}:`,
+        `📚 Found ${pdfInfo.displayName} PDF for you:`,
+        `📑 Sending ${pdfInfo.displayName} PDF:`,
+        `📖 Here's the ${pdfInfo.displayName} document:`
+    ];
+    
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    // Add bot message
+    addMessage("CoffeeBot", randomResponse, false);
+    
+    // Add note if it's a similar match
+    if (pdfInfo.note) {
+        setTimeout(() => {
+            addMessage("CoffeeBot", pdfInfo.note, false);
+        }, 300);
+    }
+    
+    // Add PDF message after delay
+    setTimeout(() => {
+        const pdfMessage = createPDFMessage(pdfInfo);
+        
+        // Create message container
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <div class="message-content"></div>
+                <div class="message-time">Just now</div>
+            </div>
+        `;
+        
+        // Insert PDF
+        const messageContent = messageDiv.querySelector('.message-content');
+        messageContent.appendChild(pdfMessage);
+        
+        // Add to chat
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Update instruction message to reflect icon-only buttons
+        setTimeout(() => {
+            addMessage("CoffeeBot", "Click the 👁️ eye icon to preview or the ⬇️ download icon to save the PDF. 📥", false);
+        }, 1000);
+        
+    }, 800);
+}
+
+// Handle unknown PDF requests
+function handleUnknownPDF(pdfRequest) {
+    const available = Object.keys(availablePDFs)
+        .slice(0, 6)
+        .map(name => `• ${name.charAt(0).toUpperCase() + name.slice(1)}`)
+        .join('\n');
+    
+    addMessage("CoffeeBot", 
+        `📭 I couldn't find "${pdfRequest}" in my PDF collection.\n\n📚 Available PDFs:\n${available}\n\n💡 Try: "aktu syllabus pdf" or "placement preparation guide"`, 
+        false
+    );
+}
+
+// Modify sendMessage function for PDFs
+function modifySendMessageForPDFs() {
+    const currentSendMessage = window.sendMessage;
+    
+    window.sendMessage = function() {
+        const messageInput = document.getElementById('messageInput');
+        if (!messageInput) return;
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        // Check for website commands
+        if (checkSpecialCommands(message)) {
+            messageInput.value = '';
+            return;
+        }
+        
+        // Check for song request
+        const songRequest = extractSongRequest && extractSongRequest(message);
+        if (songRequest) {
+            addMessage("You", message, true);
+            messageInput.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const songInfo = findMatchingSong && findMatchingSong(songRequest);
+                
+                if (songInfo) {
+                    sendRequestedSong(songRequest, songInfo);
+                } else {
+                    handleUnknownSong && handleUnknownSong(songRequest);
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Check for photo request
+        const photoRequest = extractPhotoRequest && extractPhotoRequest(message);
+        if (photoRequest) {
+            addMessage("You", message, true);
+            messageInput.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const photoInfo = findMatchingPhoto && findMatchingPhoto(photoRequest);
+                
+                if (photoInfo) {
+                    sendRequestedPhoto(photoRequest, photoInfo);
+                } else {
+                    handleUnknownPhoto && handleUnknownPhoto(photoRequest);
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Check for PDF request (NEW)
+        const lowerMessage = message.toLowerCase();
+        const isPDFRequest = 
+            lowerMessage.includes('pdf') || 
+            lowerMessage.includes('document') || 
+            lowerMessage.includes('syllabus') ||
+            lowerMessage.includes('notes') ||
+            lowerMessage.includes('paper') ||
+            lowerMessage.includes('timetable') ||
+            Object.keys(availablePDFs).some(name => lowerMessage.includes(name));
+        
+        if (isPDFRequest) {
+            addMessage("You", message, true);
+            messageInput.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                // Try to find matching PDF
+                const pdfRequest = extractPDFRequest(message);
+                let pdfInfo = null;
+                
+                if (pdfRequest) {
+                    pdfInfo = findMatchingPDF(pdfRequest);
+                }
+                
+                if (!pdfInfo) {
+                    // Search directly
+                    for (const pdfName in availablePDFs) {
+                        if (lowerMessage.includes(pdfName)) {
+                            pdfInfo = {
+                                filename: availablePDFs[pdfName],
+                                displayName: pdfName.charAt(0).toUpperCase() + pdfName.slice(1)
+                            };
+                            break;
+                        }
+                    }
+                }
+                
+                if (pdfInfo) {
+                    sendRequestedPDF(pdfRequest || message, pdfInfo);
+                } else {
+                    handleUnknownPDF(pdfRequest || message);
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Original send message functionality
+        if (currentSendMessage) {
+            currentSendMessage();
+        }
+    };
+}
+
+// Initialize PDF functionality
+setTimeout(() => {
+    modifySendMessageForPDFs();
+    
+    // Add hint about PDFs
+    setTimeout(() => {
+        addMessage("CoffeeBot", 
+            "📚 <strong>PDF Library:</strong> I can send educational PDFs!\n\n" +
+            "Try: <strong>'aktu syllabus pdf'</strong>, <strong>'placement preparation guide'</strong>, or <strong>'resume template'</strong>\n" +
+            "Features: 👁️ Preview • ⬇️ Download • WhatsApp-style UI", 
+            false
+        );
+    }, 6000);
+    
+    // Add PDF quick action
+    const quickActions = document.getElementById('quickActions');
+    if (quickActions) {
+        const pdfAction = document.createElement('div');
+        pdfAction.className = 'action-chip';
+        pdfAction.innerHTML = '<i class="fas fa-file-pdf"></i> Get PDF';
+        pdfAction.addEventListener('click', function() {
+            const pdfs = Object.keys(availablePDFs)
+                .slice(0, 4)
+                .map(name => `• ${name.charAt(0).toUpperCase() + name.slice(1)}`)
+                .join('\n');
+            
+            addMessage("CoffeeBot", 
+                `📚 Quick PDF Access:\n${pdfs}\n\n💡 Try: "aktu syllabus pdf" or tap any name above!`, 
+                false
+            );
+        });
+        quickActions.appendChild(pdfAction);
+    }
+    
+}, 1500);
+
+// Add to sassy chips
+if (sassyChips && Array.isArray(sassyChips)) {
+    sassyChips.push("AKTU syllabus pdf", "Send notes", "PDF please");
+    
+    // Re-render chips if functions exist
+    if (typeof renderSassyChips === 'function') {
+        renderSassyChips('sassyRepliesDesktop');
+        renderSassyChips('sassyRepliesMobile');
+    }
+}
+// ====== END OF PDF FUNCTIONALITY ======
+
+
     </script>
 </body>
 </html>

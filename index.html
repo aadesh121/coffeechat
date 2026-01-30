@@ -2366,7 +2366,7 @@ function findMatchingSong(songRequest) {
 // Function to create WhatsApp-style audio player
 function createAudioPlayer(songInfo) {
     // Path to audio file in the data folder
-    const audioUrl = `data/${songInfo.filename}`;
+    const audioUrl = `songs/${songInfo.filename}`;
     
     // Create audio element
     const audio = new Audio(audioUrl);
@@ -2834,6 +2834,467 @@ sassyChips.push("Play a song", "Send me music", "What songs do you have?");
 renderSassyChips('sassyRepliesDesktop');
 renderSassyChips('sassyRepliesMobile');
 // ====== END OF ADDED CODE ======
+
+
+// ====== ADD PHOTO SENDING FUNCTIONALITY ======
+// Photos available in the photos folder
+// ====== ADD PHOTO SENDING FUNCTIONALITY ======
+// Photos available in the photos folder (JPG FILES)
+// ====== ADD PHOTO SENDING FUNCTIONALITY WITH FANTASTIC UI ======
+// Photos available in the photos folder
+// ====== ADD SIMPLE PHOTO SENDING FUNCTIONALITY ======
+// Photos available in the photos folder
+// ====== ADD SIMPLE PHOTO SENDING FUNCTIONALITY ======
+// Photos available in the photos folder
+const availablePhotos = {
+    "honey singh": "honey-singh.jpg",
+    "badshah": "badshah.jpg",
+    "diljit dosanjh": "diljit-dosanjh.jpg",
+    "ariana grande": "ariana-grande.jpg",
+    "taylor swift": "taylor-swift.jpg",
+    "ed sheeran": "ed-sheeran.jpg",
+    "billie eilish": "billie-eilish.jpg",
+    "kanye west": "kanye-west.jpg",
+    "beyonce": "beyonce.jpg",
+    "rihanna": "rihanna.jpg",
+    "justin bieber": "justin-bieber.jpg",
+    "dua lipa": "dua-lipa.jpg",
+    "shreya ghoshal": "shreya-ghoshal.jpg",
+    "arijit singh": "arijit-singh.jpg",
+    "sunidhi chauhan": "sunidhi-chauhan.jpg"
+};
+
+// Function to extract photo request
+function extractPhotoRequest(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Check if message contains any photo-related keywords
+    const photoKeywords = ['photo', 'picture', 'image', 'pic', 'foto', 'photo of', 'picture of'];
+    const hasPhotoKeyword = photoKeywords.some(keyword => lowerMessage.includes(keyword));
+    
+    if (hasPhotoKeyword) {
+        let name = lowerMessage;
+        photoKeywords.forEach(keyword => {
+            name = name.replace(keyword, '');
+        });
+        
+        name = name.replace(/\b(send|show|get|give|me|please|a|the|of)\b/g, '');
+        name = name.trim();
+        
+        return name || null;
+    }
+    
+    // Check if message is just a celebrity name
+    for (const celebrity in availablePhotos) {
+        if (lowerMessage === celebrity || lowerMessage.includes(celebrity)) {
+            return celebrity;
+        }
+    }
+    
+    return null;
+}
+
+// Function to find matching photo
+function findMatchingPhoto(photoRequest) {
+    if (!photoRequest) return null;
+    
+    const lowerRequest = photoRequest.toLowerCase();
+    
+    // Exact match
+    if (availablePhotos[lowerRequest]) {
+        return {
+            filename: availablePhotos[lowerRequest],
+            displayName: lowerRequest.charAt(0).toUpperCase() + lowerRequest.slice(1)
+        };
+    }
+    
+    // Partial match
+    for (const [photoName, filename] of Object.entries(availablePhotos)) {
+        if (lowerRequest.includes(photoName) || photoName.includes(lowerRequest)) {
+            return {
+                filename: filename,
+                displayName: photoName.charAt(0).toUpperCase() + photoName.slice(1)
+            };
+        }
+    }
+    
+    return null;
+}
+
+// Function to create ChatGPT-style image message
+function createPhotoMessage(photoInfo) {
+    const photoUrl = `photos/${photoInfo.filename}`;
+    
+    const photoContainer = document.createElement('div');
+    photoContainer.className = 'photo-message-container';
+    
+    // Simple ChatGPT-style image display - NO BORDERS
+    photoContainer.innerHTML = `
+        <div class="chatgpt-image-container">
+            <img src="${photoUrl}" alt="${photoInfo.displayName}" class="chatgpt-image" 
+                 onerror="this.onerror=null; this.src='https://placehold.co/400x300/1a1a2e/ffffff?text=Image+not+found';">
+            <div class="image-actions">
+                <button class="image-action-btn download-btn" title="Download">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="image-action-btn open-btn" title="Open in new tab">
+                    <i class="fas fa-external-link-alt"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Add styles for image message
+    if (!document.querySelector('#image-message-styles')) {
+        const style = document.createElement('style');
+        style.id = 'image-message-styles';
+        style.textContent = `
+            /* ChatGPT-style image container - NO BORDERS */
+            .photo-message-container {
+                margin: 10px 0;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            .chatgpt-image-container {
+                position: relative;
+                border-radius: 8px;
+                overflow: hidden;
+                max-width: 400px;
+                /* NO BORDER - clean like ChatGPT */
+            }
+            
+            .chatgpt-image {
+                width: 100%;
+                height: auto;
+                display: block;
+                max-height: 400px;
+                object-fit: contain;
+                border-radius: 8px;
+            }
+            
+            .image-actions {
+                position: absolute;
+                bottom: 15px;
+                right: 15px;
+                display: flex;
+                gap: 10px;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+                background: rgba(15, 15, 26, 0.8);
+                backdrop-filter: blur(8px);
+                padding: 8px;
+                border-radius: 10px;
+            }
+            
+            .chatgpt-image-container:hover .image-actions {
+                opacity: 1;
+            }
+            
+            .image-action-btn {
+                background: #FF6B35; /* FULL RED */
+                border: none;
+                color: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-size: 14px;
+            }
+            
+            .image-action-btn:hover {
+                background: #E55A2B; /* Darker red on hover */
+                transform: scale(1.1);
+            }
+            
+            /* Modal for fullscreen view */
+            .image-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.2s ease;
+            }
+            
+            .image-modal.active {
+                display: flex;
+            }
+            
+            .modal-image {
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 8px;
+            }
+            
+            .modal-close-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: #FF6B35; /* FULL RED */
+                border: none;
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 16px;
+                transition: all 0.2s ease;
+            }
+            
+            .modal-close-btn:hover {
+                background: #E55A2B;
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Add event listeners
+    const downloadBtn = photoContainer.querySelector('.download-btn');
+    const openBtn = photoContainer.querySelector('.open-btn');
+    const image = photoContainer.querySelector('.chatgpt-image');
+    
+    // Download functionality
+    downloadBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const a = document.createElement('a');
+        a.href = photoUrl;
+        a.download = `${photoInfo.displayName}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+    
+    // Open in new tab
+    openBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.open(photoUrl, '_blank');
+    });
+    
+    // Click image to view larger
+    image.addEventListener('click', function() {
+        const modal = document.createElement('div');
+        modal.className = 'image-modal';
+        
+        modal.innerHTML = `
+            <img src="${photoUrl}" alt="${photoInfo.displayName}" class="modal-image">
+            <button class="modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Show modal with animation
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+        
+        // Close modal
+        const closeBtn = modal.querySelector('.modal-close-btn');
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                document.body.removeChild(modal);
+            }, 300);
+        });
+        
+        // Close on background click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    document.body.removeChild(modal);
+                }, 300);
+            }
+        });
+        
+        // Close on ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    document.body.removeChild(modal);
+                }, 300);
+            }
+        });
+    });
+    
+    return photoContainer;
+}
+
+// Send requested photo (ChatGPT-style)
+function sendRequestedPhoto(photoRequest, photoInfo) {
+    // Simple bot response like ChatGPT
+    const responses = [
+        `Here's a photo of ${photoInfo.displayName}:`,
+        `Here is ${photoInfo.displayName}:`,
+        `${photoInfo.displayName}:`,
+        `I found this photo of ${photoInfo.displayName}:`
+    ];
+    
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    // Add bot message
+    addMessage("CoffeeBot", randomResponse, false);
+    
+    // Add photo after short delay
+    setTimeout(() => {
+        const photoMessage = createPhotoMessage(photoInfo);
+        
+        // Create message container
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <div class="message-content"></div>
+                <div class="message-time">Just now</div>
+            </div>
+        `;
+        
+        // Insert photo
+        const messageContent = messageDiv.querySelector('.message-content');
+        messageContent.appendChild(photoMessage);
+        
+        // Add to chat
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+    }, 500);
+}
+
+// Handle unknown photo requests
+function handleUnknownPhoto(photoRequest) {
+    const available = Object.keys(availablePhotos)
+        .slice(0, 5)
+        .map(name => `• ${name.charAt(0).toUpperCase() + name.slice(1)}`)
+        .join('\n');
+    
+    addMessage("CoffeeBot", 
+        `I don't have "${photoRequest}" in my photo collection. Here are some available:\n${available}\n\nTry: "honey singh photo" or "send picture of badshah"`, 
+        false
+    );
+}
+
+// Modify sendMessage function for photos
+function modifySendMessageForPhotos() {
+    const originalSendMessage = window.sendMessage;
+    
+    window.sendMessage = function() {
+        const messageInput = document.getElementById('messageInput');
+        if (!messageInput) return;
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        // Check for website commands
+        if (checkSpecialCommands(message)) {
+            messageInput.value = '';
+            return;
+        }
+        
+        // Check for song request
+        const songRequest = extractSongRequest && extractSongRequest(message);
+        if (songRequest) {
+            addMessage("You", message, true);
+            messageInput.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                const songInfo = findMatchingSong && findMatchingSong(songRequest);
+                
+                if (songInfo) {
+                    sendRequestedSong(songRequest, songInfo);
+                } else {
+                    handleUnknownSong && handleUnknownSong(songRequest);
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Check for photo request
+        const lowerMessage = message.toLowerCase();
+        const isPhotoRequest = 
+            lowerMessage.includes('photo') || 
+            lowerMessage.includes('picture') || 
+            lowerMessage.includes('image') ||
+            Object.keys(availablePhotos).some(name => lowerMessage.includes(name));
+        
+        if (isPhotoRequest) {
+            addMessage("You", message, true);
+            messageInput.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                let foundCelebrity = null;
+                for (const celebrity in availablePhotos) {
+                    if (lowerMessage.includes(celebrity)) {
+                        foundCelebrity = celebrity;
+                        break;
+                    }
+                }
+                
+                if (foundCelebrity) {
+                    const photoInfo = {
+                        filename: availablePhotos[foundCelebrity],
+                        displayName: foundCelebrity.charAt(0).toUpperCase() + foundCelebrity.slice(1)
+                    };
+                    sendRequestedPhoto(foundCelebrity, photoInfo);
+                } else {
+                    handleUnknownPhoto(message);
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Original send message functionality
+        if (originalSendMessage) {
+            originalSendMessage();
+        }
+    };
+}
+
+// Initialize photo functionality
+setTimeout(() => {
+    modifySendMessageForPhotos();
+    
+    // Add simple hint
+    setTimeout(() => {
+        addMessage("CoffeeBot", "You can ask for celebrity photos: 'honey singh photo', 'send picture of badshah', etc.", false);
+    }, 4000);
+}, 1000);
+// ====== END OF PHOTO FUNCTIONALITY ======
 
     </script>
 </body>

@@ -2268,6 +2268,573 @@ setTimeout(() => {
 }, 4000);
 // ====== END OF ADDED CODE ======
 
+// ====== ADD UNIVERSAL AUDIO SENDING FUNCTIONALITY ======
+// Audio files available in the data folder
+const availableSongs = {
+    "one bottle down": "one-bottle-down.mp3",
+    "shape of you": "shape-of-you.mp3",
+    "despacito": "despacito.mp3",
+    "believer": "believer.mp3",
+    "dance monkey": "dance-monkey.mp3",
+    "blinding lights": "blinding-lights.mp3",
+    "stay": "stay.mp3",
+    "levitating": "levitating.mp3",
+    "save your tears": "save-your-tears.mp3",
+    "flowers": "flowers.mp3",
+    "as it was": "as-it-was.mp3",
+    "heat waves": "heat-waves.mp3"
+};
+
+// Function to extract song name from user message
+function extractSongRequest(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Common song request patterns
+    const requestPatterns = [
+        /(?:send|play|get|give me|share|i want|i need|can you send|can you play)\s+(?:me\s+)?(?:the\s+)?song\s+"?([^"]+)"?/i,
+        /(?:send|play|get|give me|share)\s+(?:me\s+)?"?(.+?)"?\s+(?:song|track|music)/i,
+        /(?:play|listen to)\s+"?(.+?)"?$/i,
+        /(?:i want to listen to|i want to hear)\s+"?(.+?)"?$/i,
+        /^play\s+(.+)$/i,
+        /^send\s+(?:me\s+)?(.+)$/i
+    ];
+    
+    // Try each pattern
+    for (const pattern of requestPatterns) {
+        const match = lowerMessage.match(pattern);
+        if (match && match[1]) {
+            const requestedSong = match[1].trim();
+            
+            // Remove common filler words
+            const cleanedSong = requestedSong
+                .replace(/\b(song|track|music|please|now|right now|for me)\b/g, '')
+                .trim();
+            
+            if (cleanedSong) {
+                return cleanedSong;
+            }
+        }
+    }
+    
+    // Check if message is just a song name
+    if (availableSongs[message.toLowerCase().trim()]) {
+        return message.trim();
+    }
+    
+    return null;
+}
+
+// Function to find matching song
+function findMatchingSong(songRequest) {
+    const lowerRequest = songRequest.toLowerCase();
+    
+    // Exact match
+    if (availableSongs[lowerRequest]) {
+        return {
+            filename: availableSongs[lowerRequest],
+            displayName: lowerRequest.charAt(0).toUpperCase() + lowerRequest.slice(1)
+        };
+    }
+    
+    // Partial match (check if request contains song name or vice versa)
+    for (const [songName, filename] of Object.entries(availableSongs)) {
+        if (lowerRequest.includes(songName) || songName.includes(lowerRequest)) {
+            return {
+                filename: filename,
+                displayName: songName.charAt(0).toUpperCase() + songName.slice(1)
+            };
+        }
+    }
+    
+    // Try to find closest match
+    const words = lowerRequest.split(' ');
+    for (const [songName, filename] of Object.entries(availableSongs)) {
+        for (const word of words) {
+            if (word.length > 3 && songName.includes(word)) {
+                return {
+                    filename: filename,
+                    displayName: songName.charAt(0).toUpperCase() + songName.slice(1),
+                    note: `Playing closest match for "${songRequest}"`
+                };
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Function to create WhatsApp-style audio player
+function createAudioPlayer(songInfo) {
+    // Path to audio file in the data folder
+    const audioUrl = `data/${songInfo.filename}`;
+    
+    // Create audio element
+    const audio = new Audio(audioUrl);
+    
+    // Create audio player UI (WhatsApp-style)
+    const audioPlayer = document.createElement('div');
+    audioPlayer.className = 'audio-player-container';
+    
+    audioPlayer.innerHTML = `
+        <div class="audio-player">
+            <button class="audio-play-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            <div class="audio-progress-container">
+                <div class="audio-progress-bar">
+                    <div class="audio-progress"></div>
+                </div>
+                <div class="audio-time">
+                    <span class="current-time">0:00</span>
+                    <span class="duration">0:00</span>
+                </div>
+            </div>
+            <div class="audio-wave">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+        </div>
+    `;
+    
+    // Add styles for audio player (if not already added)
+    if (!document.querySelector('#audio-player-styles')) {
+        const style = document.createElement('style');
+        style.id = 'audio-player-styles';
+        style.textContent = `
+            .audio-player-container {
+                margin: 5px 0;
+            }
+            
+            .audio-player {
+                display: flex;
+                align-items: center;
+                background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+                border-radius: 20px;
+                padding: 12px 15px;
+                min-width: 250px;
+                max-width: 300px;
+                box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .audio-player::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: shimmer 2s infinite;
+            }
+            
+            @keyframes shimmer {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+            
+            .audio-play-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: white;
+                border: none;
+                color: #d32f2f;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                margin-right: 12px;
+                flex-shrink: 0;
+                transition: all 0.2s ease;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+                z-index: 1;
+            }
+            
+            .audio-play-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+            
+            .audio-play-btn i {
+                font-size: 16px;
+                margin-left: 2px;
+            }
+            
+            .audio-progress-container {
+                flex: 1;
+                margin-right: 10px;
+                z-index: 1;
+            }
+            
+            .audio-progress-bar {
+                height: 4px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                margin-bottom: 4px;
+                cursor: pointer;
+                position: relative;
+            }
+            
+            .audio-progress {
+                height: 100%;
+                background: white;
+                border-radius: 2px;
+                width: 0%;
+                transition: width 0.1s linear;
+            }
+            
+            .audio-progress-bar:hover .audio-progress {
+                background: #ffeb3b;
+            }
+            
+            .audio-time {
+                display: flex;
+                justify-content: space-between;
+                font-size: 11px;
+                color: white;
+                opacity: 0.9;
+                font-family: monospace;
+            }
+            
+            .audio-wave {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+                height: 30px;
+                z-index: 1;
+            }
+            
+            .wave-bar {
+                width: 3px;
+                background: white;
+                border-radius: 1px;
+                animation: wave 1s ease-in-out infinite;
+                opacity: 0.7;
+            }
+            
+            .wave-bar:nth-child(1) { height: 10px; animation-delay: 0.1s; }
+            .wave-bar:nth-child(2) { height: 15px; animation-delay: 0.2s; }
+            .wave-bar:nth-child(3) { height: 20px; animation-delay: 0.3s; }
+            .wave-bar:nth-child(4) { height: 15px; animation-delay: 0.4s; }
+            .wave-bar:nth-child(5) { height: 10px; animation-delay: 0.5s; }
+            
+            @keyframes wave {
+                0%, 100% { height: 10px; }
+                50% { height: 20px; }
+            }
+            
+            .audio-player.playing .wave-bar {
+                animation-play-state: running;
+            }
+            
+            .audio-player:not(.playing) .wave-bar {
+                animation-play-state: paused;
+                opacity: 0.5;
+            }
+            
+            .song-request-note {
+                font-size: 0.8em;
+                color: #ffeb3b;
+                margin-top: 5px;
+                font-style: italic;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Get DOM elements
+    const playBtn = audioPlayer.querySelector('.audio-play-btn');
+    const playIcon = playBtn.querySelector('i');
+    const progress = audioPlayer.querySelector('.audio-progress');
+    const progressBar = audioPlayer.querySelector('.audio-progress-bar');
+    const currentTimeEl = audioPlayer.querySelector('.current-time');
+    const durationEl = audioPlayer.querySelector('.duration');
+    const audioElement = audioPlayer.querySelector('.audio-player');
+    
+    // Format time in MM:SS
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    
+    // Update progress bar
+    function updateProgress() {
+        if (!isNaN(audio.duration)) {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = `${percent}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        }
+    }
+    
+    // Update duration display
+    function updateDuration() {
+        if (!isNaN(audio.duration)) {
+            durationEl.textContent = formatTime(audio.duration);
+        }
+    }
+    
+    // Toggle play/pause
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            playIcon.className = 'fas fa-pause';
+            audioElement.classList.add('playing');
+        } else {
+            audio.pause();
+            playIcon.className = 'fas fa-play';
+            audioElement.classList.remove('playing');
+        }
+    }
+    
+    // Set progress on click
+    function setProgress(e) {
+        const width = this.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audio.duration;
+        
+        if (!isNaN(duration)) {
+            audio.currentTime = (clickX / width) * duration;
+        }
+    }
+    
+    // Reset when audio ends
+    function audioEnded() {
+        playIcon.className = 'fas fa-play';
+        audioElement.classList.remove('playing');
+        audio.currentTime = 0;
+        updateProgress();
+    }
+    
+    // Add event listeners
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('ended', audioEnded);
+    audio.addEventListener('error', function(e) {
+        console.error('Audio error:', e);
+        playBtn.disabled = true;
+        playIcon.className = 'fas fa-exclamation-triangle';
+        currentTimeEl.textContent = 'Error';
+        durationEl.textContent = '';
+        audioPlayer.querySelector('.audio-time').innerHTML = 
+            '<span style="color: #ffeb3b">Audio not found</span>';
+    });
+    
+    playBtn.addEventListener('click', togglePlay);
+    progressBar.addEventListener('click', setProgress);
+    
+    return audioPlayer;
+}
+
+// Function to send the requested song
+function sendRequestedSong(songRequest, songInfo) {
+    // Add bot message
+    const responses = [
+        `"${songInfo.displayName}" coming right up! 🎵`,
+        `Playing "${songInfo.displayName}" for you! 🎶`,
+        `Sending you "${songInfo.displayName}"... enjoy! 🍻`,
+        `Here's "${songInfo.displayName}"! Volume up! 🔊`,
+        `Chala ja gana sun... Just kidding! Here's "${songInfo.displayName}"! 🎧`
+    ];
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    addMessage("CoffeeBot", randomResponse, false);
+    
+    // Add note if it's a closest match
+    if (songInfo.note) {
+        setTimeout(() => {
+            addMessage("CoffeeBot", songInfo.note, false);
+        }, 500);
+    }
+    
+    // Create and add audio player after a short delay
+    setTimeout(() => {
+        const audioPlayer = createAudioPlayer(songInfo);
+        
+        // Create a bot message container for the audio player
+        const audioMessageDiv = document.createElement('div');
+        audioMessageDiv.className = 'message bot-message';
+        
+        audioMessageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <div class="message-content">
+                    <div style="margin-bottom: 8px; font-size: 0.9em; opacity: 0.9;">
+                        <i class="fas fa-music"></i> ${songInfo.displayName}.mp3
+                    </div>
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        `;
+        
+        // Insert audio player into message content
+        const messageContent = audioMessageDiv.querySelector('.message-content');
+        messageContent.appendChild(audioPlayer);
+        
+        // Add note for closest match
+        if (songInfo.note) {
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'song-request-note';
+            noteDiv.textContent = songInfo.note;
+            messageContent.appendChild(noteDiv);
+        }
+        
+        // Add to chat
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+            chatMessages.appendChild(audioMessageDiv);
+            scrollToBottom();
+        }
+        
+        // Auto-play if sound is enabled
+        if (soundEnabled) {
+            setTimeout(() => {
+                const playBtn = audioPlayer.querySelector('.audio-play-btn');
+                if (playBtn) playBtn.click();
+            }, 500);
+        }
+        
+        // Add follow-up message
+        setTimeout(() => {
+            const followUps = [
+                "How's the song? 🎶",
+                "Liked the song? Thumbs up if yes! 👍",
+                "Song complete! Another one? 😄",
+                "Gana accha laga? Coffee piyega? ☕",
+                `Want more songs like "${songInfo.displayName}"? Just ask! 🎵`
+            ];
+            const randomFollowUp = followUps[Math.floor(Math.random() * followUps.length)];
+            addMessage("CoffeeBot", randomFollowUp, false);
+        }, 3000);
+        
+    }, 1000);
+}
+
+// Function to handle unknown song requests
+function handleUnknownSong(songRequest) {
+    const responses = [
+        `Sorry, I couldn't find "${songRequest}" in my music library! 😔`,
+        `"${songRequest}"? Never heard of it! Try another song! 🤷‍♂️`,
+        `That song is not in my playlist. Here's what I have available:`,
+        `Mujhe "${songRequest}" nahi aata! Try these instead:`
+    ];
+    
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    addMessage("CoffeeBot", randomResponse, false);
+    
+    // Show available songs
+    setTimeout(() => {
+        const availableList = Object.keys(availableSongs)
+            .map(song => `• ${song.charAt(0).toUpperCase() + song.slice(1)}`)
+            .join('\n');
+        
+        addMessage("CoffeeBot", `Available songs:\n${availableList}`, false);
+        
+        // Add quick song suggestions
+        setTimeout(() => {
+            const suggestions = [
+                "You can say 'play shape of you', 'send me despacito', or 'i want to listen to believer'",
+                "Try: 'play one bottle down', 'send me dance monkey', or 'blinding lights song please'"
+            ];
+            addMessage("CoffeeBot", suggestions[Math.floor(Math.random() * suggestions.length)], false);
+        }, 500);
+    }, 1000);
+}
+
+// Modify the sendMessage function to include song requests
+const originalSendMessageFunction = window.sendMessage;
+window.sendMessage = function() {
+    const messageInput = document.getElementById('messageInput');
+    if (!messageInput) return;
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Check for website commands
+    if (checkSpecialCommands(message)) {
+        messageInput.value = '';
+        return;
+    }
+    
+    // Check for song request
+    const songRequest = extractSongRequest(message);
+    if (songRequest) {
+        addMessage("You", message, true);
+        messageInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Find matching song
+        setTimeout(() => {
+            removeTypingIndicator();
+            const songInfo = findMatchingSong(songRequest);
+            
+            if (songInfo) {
+                sendRequestedSong(songRequest, songInfo);
+            } else {
+                handleUnknownSong(songRequest);
+            }
+        }, 1000 + Math.random() * 1000);
+        
+        return;
+    }
+    
+    // Original send message functionality
+    originalSendMessageFunction();
+};
+
+// Add songs quick action
+function addSongQuickActions() {
+    const quickActions = document.getElementById('quickActions');
+    if (!quickActions) return;
+    
+    // Add music button if not already there
+    if (!document.querySelector('.music-quick-action')) {
+        const musicAction = document.createElement('div');
+        musicAction.className = 'action-chip music-quick-action';
+        musicAction.innerHTML = '<i class="fas fa-music"></i> Play Song';
+        musicAction.addEventListener('click', function() {
+            showSongList();
+        });
+        quickActions.appendChild(musicAction);
+    }
+}
+
+// Show available songs list
+function showSongList() {
+    const songsList = Object.keys(availableSongs)
+        .map(song => `• ${song.charAt(0).toUpperCase() + song.slice(1)}`)
+        .join('\n');
+    
+    addMessage("CoffeeBot", "Here are the songs I can play:\n" + songsList, false);
+    
+    setTimeout(() => {
+        addMessage("CoffeeBot", "Just say 'play [song name]' or 'send me [song name]' to listen! 🎵", false);
+    }, 500);
+}
+
+// Initialize song functionality
+setTimeout(() => {
+    addSongQuickActions();
+    
+    // Add hint about song requests
+    addMessage("CoffeeBot", "Psst... I can play songs! Try 'play shape of you', 'send me despacito', or 'i want to listen to one bottle down'! 🎵", false);
+}, 6000);
+
+// Add to sassy chips
+sassyChips.push("Play a song", "Send me music", "What songs do you have?");
+renderSassyChips('sassyRepliesDesktop');
+renderSassyChips('sassyRepliesMobile');
+// ====== END OF ADDED CODE ======
+
     </script>
 </body>
 </html>

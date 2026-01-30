@@ -4067,6 +4067,573 @@ if (sassyChips && Array.isArray(sassyChips)) {
 // ====== END OF PDF FUNCTIONALITY ======
 
 
+// ====== ADD MESSAGE REACTION FEATURE ======
+// ====== ADD MESSAGE REACTION FEATURE ======
+// ====== ADD MESSAGE REACTION FEATURE ======
+const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+const expandedEmojis = ['😎', '🔥', '👏', '🤔', '🎉', '🤦', '💯', '👀', '✨', '😍'];
+
+// Add reaction styles to the CSS dynamically
+const reactionStyles = document.createElement('style');
+reactionStyles.id = 'reaction-styles';
+reactionStyles.textContent = `
+    /* Message Reaction Styles */
+    .message-reaction-wrapper {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+    }
+    
+    .message-reactions {
+        position: absolute;
+        bottom: -12px;
+        right: 10px;
+        background: #d32f2f;
+        border-radius: 12px;
+        padding: 2px 6px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+        border: 2px solid #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-width: 30px;
+        min-height: 24px;
+    }
+    
+    .user-message .message-reactions {
+        left: 10px;
+        right: auto;
+    }
+    
+    .reaction-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        line-height: 1;
+    }
+    
+    .reaction-count {
+        font-size: 0.7rem;
+        color: white;
+        font-weight: bold;
+        margin-left: 1px;
+    }
+    
+    /* Reaction Picker Styles */
+    .reaction-picker {
+        position: fixed;
+        background: white;
+        border-radius: 28px;
+        padding: 8px 12px;
+        display: flex;
+        gap: 6px;
+        box-shadow: 0 4px 25px rgba(211, 47, 47, 0.25);
+        z-index: 10000;
+        border: 2px solid #d32f2f;
+        animation: fadeInUp 0.2s ease;
+    }
+    
+    .reaction-emoji-btn {
+        font-size: 1.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 4px;
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .reaction-emoji-btn:hover {
+        transform: scale(1.3);
+        background: rgba(211, 47, 47, 0.1);
+    }
+    
+    .reaction-plus-btn {
+        font-size: 1.3rem;
+        color: #d32f2f;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        width: 40px;
+        height: 40px;
+        margin-left: 4px;
+    }
+    
+    .reaction-plus-btn:hover {
+        background: rgba(211, 47, 47, 0.1);
+        transform: scale(1.1);
+    }
+    
+    /* Expanded Reaction Picker */
+    .expanded-reaction-picker {
+        position: fixed;
+        background: white;
+        border-radius: 16px;
+        padding: 15px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        box-shadow: 0 8px 30px rgba(211, 47, 47, 0.3);
+        z-index: 10001;
+        border: 2px solid #d32f2f;
+        animation: fadeInUp 0.2s ease;
+        width: 280px;
+    }
+    
+    .expanded-emoji-btn {
+        font-size: 1.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 6px;
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .expanded-emoji-btn:hover {
+        transform: scale(1.3);
+        background: rgba(211, 47, 47, 0.1);
+    }
+    
+    .expanded-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+        color: #d32f2f;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .close-expanded-btn {
+        background: transparent;
+        border: none;
+        color: #d32f2f;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 6px;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    
+    .close-expanded-btn:hover {
+        background: rgba(211, 47, 47, 0.1);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    @keyframes bounceReaction {
+        0% { transform: scale(0); opacity: 0; }
+        50% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .reaction-bubble {
+        animation: bounceReaction 0.4s ease;
+    }
+    
+    .message-content {
+        position: relative;
+    }
+    
+    .message-content.long-press-active {
+        background: rgba(211, 47, 47, 0.05) !important;
+    }
+`;
+document.head.appendChild(reactionStyles);
+
+// Store reactions for each message
+const messageReactions = new Map();
+
+// Track long press timers
+const pressTimers = new Map();
+
+// Add long press event to messages
+function addReactionFunctionality() {
+    const messageContents = document.querySelectorAll('.message-content');
+    
+    messageContents.forEach((messageContent, index) => {
+        // Skip if already initialized
+        if (messageContent.dataset.reactionInit) return;
+        messageContent.dataset.reactionInit = 'true';
+        
+        const messageId = index;
+        
+        // Add wrapper div
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-reaction-wrapper';
+        
+        // Move existing content into wrapper
+        const existingContent = messageContent.innerHTML;
+        wrapper.innerHTML = existingContent;
+        messageContent.innerHTML = '';
+        messageContent.appendChild(wrapper);
+        
+        // Add reactions container
+        const reactionsContainer = document.createElement('div');
+        reactionsContainer.className = 'message-reactions';
+        reactionsContainer.style.display = 'none';
+        wrapper.appendChild(reactionsContainer);
+        
+        // Update reaction display if reactions exist
+        updateReactionDisplay(messageId, reactionsContainer);
+        
+        // Add long press events
+        let pressTimer;
+        
+        messageContent.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return; // Only left click
+            startLongPress(messageContent, messageId, e);
+        });
+        
+        messageContent.addEventListener('touchstart', (e) => {
+            startLongPress(messageContent, messageId, e);
+        });
+        
+        messageContent.addEventListener('mouseup', cancelLongPress);
+        messageContent.addEventListener('mouseleave', cancelLongPress);
+        messageContent.addEventListener('touchend', cancelLongPress);
+        messageContent.addEventListener('touchcancel', cancelLongPress);
+        
+        function startLongPress(element, id, e) {
+            e.preventDefault();
+            element.classList.add('long-press-active');
+            
+            pressTimer = setTimeout(() => {
+                showReactionPicker(element, id, e);
+                element.classList.remove('long-press-active');
+            }, 1000);
+            
+            pressTimers.set(element, pressTimer);
+        }
+        
+        function cancelLongPress(e) {
+            const element = e.currentTarget;
+            const timer = pressTimers.get(element);
+            if (timer) {
+                clearTimeout(timer);
+                pressTimers.delete(element);
+                element.classList.remove('long-press-active');
+            }
+        }
+    });
+}
+
+// Update reaction display
+function updateReactionDisplay(messageId, container) {
+    if (!messageReactions.has(messageId)) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    const reactions = messageReactions.get(messageId);
+    const reactionCounts = {};
+    
+    // Count reactions
+    reactions.forEach(emoji => {
+        reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1;
+    });
+    
+    // Sort by count (most frequent first)
+    const sortedReactions = Object.entries(reactionCounts)
+        .sort((a, b) => b[1] - a[1]);
+    
+    if (sortedReactions.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    // Show only top 3 reactions
+    const displayReactions = sortedReactions.slice(0, 3);
+    
+    container.innerHTML = displayReactions.map(([emoji, count]) => `
+        <div class="reaction-item">
+            ${emoji}
+            <span class="reaction-count">${count > 1 ? count : ''}</span>
+        </div>
+    `).join('');
+    
+    container.style.display = 'flex';
+}
+
+// Show reaction picker
+function showReactionPicker(element, messageId, event) {
+    // Remove existing pickers
+    removeAllPickers();
+    
+    // Get element position
+    const rect = element.getBoundingClientRect();
+    const isUserMessage = element.closest('.user-message');
+    
+    // Create picker
+    const picker = document.createElement('div');
+    picker.className = 'reaction-picker';
+    picker.dataset.messageId = messageId;
+    
+    // Calculate position - place above the message
+    let left, top;
+    
+    if (isUserMessage) {
+        // For user messages (right side)
+        left = rect.right - 180; // Adjust as needed
+    } else {
+        // For bot messages (left side)
+        left = rect.left + 10;
+    }
+    
+    top = rect.top - 70; // Place above the message
+    
+    // Ensure picker stays within viewport
+    const pickerWidth = 320; // Approximate width
+    if (left + pickerWidth > window.innerWidth) {
+        left = window.innerWidth - pickerWidth - 10;
+    }
+    if (left < 10) left = 10;
+    if (top < 10) top = rect.bottom + 10;
+    
+    picker.style.left = `${left}px`;
+    picker.style.top = `${top}px`;
+    
+    // Add 6 default emojis
+    reactionEmojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'reaction-emoji-btn';
+        btn.textContent = emoji;
+        btn.title = emoji;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addReaction(messageId, emoji);
+            removeAllPickers();
+        });
+        picker.appendChild(btn);
+    });
+    
+    // Add plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.className = 'reaction-plus-btn';
+    plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+    plusBtn.title = 'More emojis';
+    plusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showExpandedReactions(picker, messageId, left, top);
+    });
+    picker.appendChild(plusBtn);
+    
+    document.body.appendChild(picker);
+    
+    // Add click outside listener
+    setTimeout(() => {
+        const clickHandler = (e) => {
+            if (!picker.contains(e.target) && !element.contains(e.target)) {
+                removeAllPickers();
+                document.removeEventListener('click', clickHandler);
+                document.removeEventListener('touchstart', clickHandler);
+            }
+        };
+        
+        document.addEventListener('click', clickHandler);
+        document.addEventListener('touchstart', clickHandler);
+    }, 10);
+}
+
+// Show expanded reactions
+function showExpandedReactions(parentPicker, messageId, left, top) {
+    // Remove parent picker first
+    parentPicker.remove();
+    
+    // Create expanded picker
+    const expandedPicker = document.createElement('div');
+    expandedPicker.className = 'expanded-reaction-picker';
+    expandedPicker.dataset.messageId = messageId;
+    
+    // Position it slightly above the original picker
+    expandedPicker.style.left = `${left}px`;
+    expandedPicker.style.top = `${top - 180}px`; // Move up to show all emojis
+    
+    // Ensure it's within viewport
+    const expandedWidth = 280;
+    const expandedHeight = 220;
+    
+    if (parseInt(expandedPicker.style.left) + expandedWidth > window.innerWidth) {
+        expandedPicker.style.left = `${window.innerWidth - expandedWidth - 10}px`;
+    }
+    if (parseInt(expandedPicker.style.top) < 10) {
+        expandedPicker.style.top = `${top + 60}px`; // Move below if no space above
+    }
+    
+    // Add header
+    const header = document.createElement('div');
+    header.className = 'expanded-header';
+    header.innerHTML = `
+        <span>Select Emoji</span>
+        <button class="close-expanded-btn" title="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    expandedPicker.appendChild(header);
+    
+    // Combine all emojis (6 default + 10 expanded)
+    const allEmojis = [...reactionEmojis, ...expandedEmojis];
+    
+    // Add all emojis
+    allEmojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'expanded-emoji-btn';
+        btn.textContent = emoji;
+        btn.title = emoji;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addReaction(messageId, emoji);
+            removeAllPickers();
+        });
+        expandedPicker.appendChild(btn);
+    });
+    
+    document.body.appendChild(expandedPicker);
+    
+    // Close button event
+    const closeBtn = expandedPicker.querySelector('.close-expanded-btn');
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeAllPickers();
+    });
+    
+    // Add click outside listener
+    setTimeout(() => {
+        const clickHandler = (e) => {
+            if (!expandedPicker.contains(e.target)) {
+                removeAllPickers();
+                document.removeEventListener('click', clickHandler);
+                document.removeEventListener('touchstart', clickHandler);
+            }
+        };
+        
+        document.addEventListener('click', clickHandler);
+        document.addEventListener('touchstart', clickHandler);
+    }, 10);
+}
+
+// Remove all pickers
+function removeAllPickers() {
+    document.querySelectorAll('.reaction-picker, .expanded-reaction-picker').forEach(picker => {
+        picker.remove();
+    });
+}
+
+// Add reaction to message
+function addReaction(messageId, emoji) {
+    // Initialize if not exists
+    if (!messageReactions.has(messageId)) {
+        messageReactions.set(messageId, []);
+    }
+    
+    // Add reaction
+    const reactions = messageReactions.get(messageId);
+    reactions.push(emoji);
+    
+    // Update display on all messages with this ID
+    const messageContents = document.querySelectorAll('.message-content');
+    if (messageContents[messageId]) {
+        const reactionsContainer = messageContents[messageId].querySelector('.message-reactions');
+        if (reactionsContainer) {
+            updateReactionDisplay(messageId, reactionsContainer);
+            
+            // Add visual feedback
+            const bubble = document.createElement('div');
+            bubble.textContent = emoji;
+            bubble.style.position = 'fixed';
+            bubble.style.fontSize = '2.5rem';
+            bubble.style.zIndex = '10000';
+            bubble.style.pointerEvents = 'none';
+            bubble.className = 'reaction-bubble';
+            
+            // Position near the message
+            const rect = messageContents[messageId].getBoundingClientRect();
+            bubble.style.left = `${rect.left + rect.width / 2 - 25}px`;
+            bubble.style.top = `${rect.top - 50}px`;
+            
+            document.body.appendChild(bubble);
+            
+            // Remove bubble after animation
+            setTimeout(() => {
+                bubble.remove();
+            }, 400);
+        }
+    }
+}
+
+// Initialize reaction functionality
+function initializeReactions() {
+    addReactionFunctionality();
+    
+    // Re-run when new messages are added
+    const originalAddMessage = window.addMessage;
+    if (originalAddMessage) {
+        window.addMessage = function(sender, text, isUser) {
+            const result = originalAddMessage(sender, text, isUser);
+            setTimeout(() => {
+                // Reinitialize for all messages
+                document.querySelectorAll('.message-content').forEach(el => {
+                    el.dataset.reactionInit = 'false';
+                });
+                addReactionFunctionality();
+            }, 100);
+            return result;
+        };
+    }
+    
+    // Add hint about reactions
+    setTimeout(() => {
+        if (!document.querySelector('.reaction-hint-added')) {
+            const hintMessage = "💡 <strong>Pro Tip:</strong> Long press (hold for 1 second) on any message to add reactions like WhatsApp! Try it on this message! 😉";
+            addMessage("CoffeeBot", hintMessage, false);
+            document.querySelector('.reaction-hint-added', true);
+        }
+    }, 3000);
+}
+
+// Start the reaction system
+setTimeout(initializeReactions, 1000);
+
+// ====== END OF MESSAGE REACTION FEATURE ======
+// ====== END OF MESSAGE REACTION FEATURE ======
+// ====== END OF MESSAGE REACTION FEATURE ======
+
+
     </script>
 </body>
 </html>

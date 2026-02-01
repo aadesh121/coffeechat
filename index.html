@@ -4093,15 +4093,211 @@ if (sassyChips && Array.isArray(sassyChips)) {
 
 
 
+// ====== SIMPLE AI AGENT INTEGRATION ======
+
+// ====== AI AGENT INTEGRATION WITH DYNAMIC PORT ======
+
+// ====== COMPLETE AI AGENT INTEGRATION ======
 
 
+// ====== SIMPLE AI INTEGRATION - WON'T BREAK YOUR SITE ======
+
+// Save original function FIRST
+// ====== MINIMAL AI INTEGRATION ======
+
+// Wait for page to fully load
+// ====== AI AGENT INTEGRATION - COMPLETE CODE ======
+
+// Save the original sendMessage function FIRST
+// ====== AI INTEGRATION - COMPLETE & SAFE ======
+
+// Save the original sendMessage function FIRST
+// ====== AI INTEGRATION - SIMPLE ======
+
+// Wait for everything to load
+// ====== AI INTEGRATION - WORKING CODE ======
+
+// ====== AI INTEGRATION - WORKING CODE ======
+
+// ====== SIMPLE AI INTEGRATION - WORKING ======
+
+// ====== MINIMAL AI TEST ======
+
+// ====== SIMPLE AI CONNECTION TEST ======
+
+// ====== FINAL AI INTEGRATION ======
 
 
+// ====== HTTP AI INTEGRATION - WILL WORK ======
+
+// ====== HTTP AI INTEGRATION - FIXED ======
+
+console.log("AI Integration (HTTP) starting...");
+
+// Function to ask AI
+async function askAI(message) {
+    try {
+        console.log("Asking AI:", message);
+        
+        const response = await fetch('http://localhost:5000/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("AI Response:", data);
+        return data.response || data.error;
+        
+    } catch (error) {
+        console.error("AI Error:", error);
+        return null;
+    }
+}
+
+// Save original function if it exists and not already saved
+if (typeof window.sendMessage === 'function' && !window._originalSendMessage) {
+    window._originalSendMessage = window.sendMessage;
+}
+
+// Test connection on load
+setTimeout(async () => {
+    console.log("Testing AI connection...");
+    
+    try {
+        const response = await fetch('http://localhost:5000/health');
+        if (response.ok) {
+            const data = await response.json();
+            console.log("✅ AI Server is running:", data);
+            
+            // Show in chat
+            if (typeof addMessage === 'function') {
+                addMessage("CoffeeBot", 
+                    `🤖 **AI CONNECTED!**\n\n` +
+                    `Model: ${data.model}\n` +
+                    `Server: http://localhost:5000`,
+                    false
+                );
+            }
+        } else {
+            console.log("❌ AI Server not responding");
+            if (typeof addMessage === 'function') {
+                addMessage("CoffeeBot", "❌ AI Server offline", false);
+            }
+        }
+    } catch (error) {
+        console.log("❌ Cannot connect to AI:", error);
+        if (typeof addMessage === 'function') {
+            addMessage("CoffeeBot", 
+                "❌ **AI Server Offline**\n\n" +
+                "Run: python3 http_ai.py",
+                false
+            );
+        }
+    }
+}, 2000);
+
+// Create new sendMessage function
+window.sendMessage = async function() {
+    const input = document.getElementById('messageInput');
+    if (!input) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    console.log("Processing:", message);
+    
+    // Check for special commands first
+    if (window.checkSpecialCommands && window.checkSpecialCommands(message)) {
+        if (window._originalSendMessage) {
+            window._originalSendMessage();
+        }
+        return;
+    }
+    
+    if (window.extractSongRequest && window.extractSongRequest(message)) {
+        if (window._originalSendMessage) {
+            window._originalSendMessage();
+        }
+        return;
+    }
+    
+    if (window.extractPhotoRequest && window.extractPhotoRequest(message)) {
+        if (window._originalSendMessage) {
+            window._originalSendMessage();
+        }
+        return;
+    }
+    
+    if (window.extractPDFRequest && window.extractPDFRequest(message)) {
+        if (window._originalSendMessage) {
+            window._originalSendMessage();
+        }
+        return;
+    }
+    
+    // For regular messages, use AI
+    if (typeof addMessage === 'function') {
+        addMessage("You", message, true);
+    }
+    input.value = '';
+    
+    // Show typing
+    if (typeof showTypingIndicator === 'function') {
+        showTypingIndicator();
+    }
+    
+    // Get AI response
+    const aiResponse = await askAI(message);
+    
+    // Remove typing
+    if (typeof removeTypingIndicator === 'function') {
+        removeTypingIndicator();
+    }
+    
+    if (aiResponse && typeof addMessage === 'function') {
+        // Use AI response
+        addMessage("CoffeeBot AI", aiResponse, false);
+        
+        // Play sound if available
+        if (typeof soundEnabled !== 'undefined' && soundEnabled && 
+            typeof playReceiveSound === 'function') {
+            playReceiveSound();
+        }
+    } else {
+        // Fallback to original or sassy response
+        setTimeout(() => {
+            if (typeof getRandomResponse === 'function' && typeof addMessage === 'function') {
+                const response = getRandomResponse();
+                addMessage("CoffeeBot", response, false);
+                
+                if (typeof soundEnabled !== 'undefined' && soundEnabled && 
+                    typeof playReceiveSound === 'function') {
+                    playReceiveSound();
+                }
+            }
+        }, 1000);
+    }
+};
+
+console.log("✅ HTTP AI Integration loaded");
+// ====== END ======
+// ====== END ======
 
 
-
-
-
+// ====== END ======
+// ====== END ======
+// ====== END ======
+// ====== END ======
+// ====== END ======
+// ====== END OF AI INTEGRATION ======
+// ====== MINIMAL AI AGENT INTEGRATION (NO UI CHANGES) ======
 
 
 

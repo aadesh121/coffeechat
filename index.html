@@ -3313,7 +3313,7 @@ setTimeout(() => {
     
     // Add simple hint
     setTimeout(() => {
-        addMessage("CoffeeBot", "You can ask for celebrity photos: 'honey singh photo', 'send picture of badshah', etc.", false);
+        addMessage("CoffeeBot", "You can ask for celebrity photos: 'honey singh photo' etc.", false);
     }, 4000);
 }, 1000);
 // ====== END OF PHOTO FUNCTIONALITY ======
@@ -4195,9 +4195,7 @@ setTimeout(async () => {
         console.log("❌ Cannot connect to AI:", error);
         if (typeof addMessage === 'function') {
             addMessage("CoffeeBot", 
-                "❌ **AI Server Offline**\n\n" +
-                "Run: python3 http_ai.py",
-                false
+                "Note: AI Server currently Offline, responses will be as usual. \n\n", false
             );
         }
     }
